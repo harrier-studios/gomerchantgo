@@ -17,7 +17,50 @@
 <body>
 
   <div id="app">
-    <div id="screen-home"     class="screen active"></div>
+    <div id="screen-home" class="screen active">
+  <div class="home-header">
+    <div class="home-title">
+      <p class="home-eyebrow">Pathfinder 2E</p>
+      <h1>Merchants</h1>
+      <p class="home-subtitle">GM Toolkit</p>
+    </div>
+    <button class="theme-toggle" aria-label="Toggle theme">
+      <i class="ti ti-moon"></i>
+    </button>
+  </div>
+
+  <div class="home-nav">
+    <button class="nav-card" onclick="showScreen('screen-merchants')">
+      <div class="nav-card-icon teal">
+        <i class="ti ti-building-store"></i>
+      </div>
+      <div class="nav-card-text">
+        <span class="nav-card-title">Merchants</span>
+        <span class="nav-card-sub">Generate and manage merchants</span>
+      </div>
+    </button>
+
+    <button class="nav-card" onclick="showScreen('screen-custom-data')">
+      <div class="nav-card-icon blue">
+        <i class="ti ti-database"></i>
+      </div>
+      <div class="nav-card-text">
+        <span class="nav-card-title">Custom Data</span>
+        <span class="nav-card-sub">Homebrew items and modifications</span>
+      </div>
+    </button>
+
+    <button class="nav-card" onclick="showScreen('screen-settings')">
+      <div class="nav-card-icon gold">
+        <i class="ti ti-settings"></i>
+      </div>
+      <div class="nav-card-text">
+        <span class="nav-card-title">Settings</span>
+        <span class="nav-card-sub">App preferences</span>
+      </div>
+    </button>
+  </div>
+</div>
     <div id="screen-merchants"     class="screen"></div>
     <div id="screen-merchant-new"  class="screen"></div>
     <div id="screen-merchant-result" class="screen"></div>
