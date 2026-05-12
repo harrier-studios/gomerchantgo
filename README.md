@@ -1,2 +1,3 @@
 # merchants
-An offline merchant building tool for Paizo's Pathfinder 2nd Edition.
+
+Tool for building merchants in Foundry VTT
