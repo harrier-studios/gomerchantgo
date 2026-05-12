@@ -1,0 +1,11 @@
+# Foundry source data - local only, never commit
+/foundry-pf2e-source/
+
+# Linux desktop metadata
+.directory
+
+# Mac junk if anyone else ever works on this
+.DS_Store
+
+# Node
+node_modules/
