@@ -11,126 +11,285 @@
   <!-- Tabler Icons -->
   <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet" />
 
-  <!-- Your stylesheet -->
+  <!-- Stylesheet -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
   <div id="app">
+
+    <!-- ─── Home ─────────────────────────────────────────── -->
     <div id="screen-home" class="screen active">
-  <div class="home-header">
-    <div class="home-title">
-      <p class="home-eyebrow">Pathfinder 2E</p>
-      <h1>Merchants</h1>
-      <p class="home-subtitle">GM Toolkit</p>
+      <div class="home-header">
+        <div class="home-title">
+          <p class="home-eyebrow">Pathfinder 2E</p>
+          <h1>Merchants</h1>
+          <p class="home-subtitle">GM Toolkit</p>
+        </div>
+        <button class="theme-toggle" aria-label="Toggle theme">
+          <i class="ti ti-moon"></i>
+        </button>
+      </div>
+
+      <div class="home-nav">
+        <button class="nav-card" onclick="showScreen('screen-merchants')">
+          <div class="nav-card-icon teal">
+            <i class="ti ti-building-store"></i>
+          </div>
+          <div class="nav-card-text">
+            <span class="nav-card-title">Merchants</span>
+            <span class="nav-card-sub">Generate and manage merchants</span>
+          </div>
+        </button>
+
+        <button class="nav-card" onclick="showScreen('screen-custom-data')">
+          <div class="nav-card-icon blue">
+            <i class="ti ti-database"></i>
+          </div>
+          <div class="nav-card-text">
+            <span class="nav-card-title">Custom Data</span>
+            <span class="nav-card-sub">Homebrew items and modifications</span>
+          </div>
+        </button>
+
+        <button class="nav-card" onclick="showScreen('screen-settings')">
+          <div class="nav-card-icon gold">
+            <i class="ti ti-settings"></i>
+          </div>
+          <div class="nav-card-text">
+            <span class="nav-card-title">Settings</span>
+            <span class="nav-card-sub">App preferences</span>
+          </div>
+        </button>
+      </div>
     </div>
-    <button class="theme-toggle" aria-label="Toggle theme">
-      <i class="ti ti-moon"></i>
-    </button>
+
+    <!-- ─── Merchants List ────────────────────────────────── -->
+    <div id="screen-merchants" class="screen">
+      <div class="screen-header">
+        <div>
+          <h1>Merchants</h1>
+          <p class="screen-subtitle">3 saved</p>
+        </div>
+        <button class="btn-primary" onclick="showScreen('screen-merchant-new')">
+          <i class="ti ti-plus"></i> New Merchant
+        </button>
+      </div>
+
+      <div class="list-container">
+        <div class="list-header">
+          <span class="col-name">Name</span>
+          <span class="col-detail">Race</span>
+          <span class="col-detail">Type</span>
+          <span class="col-detail-wide">Settlement · Economy</span>
+          <span class="col-detail">Level</span>
+          <span class="col-rarity">Rarity</span>
+        </div>
+
+        <div class="list-row" onclick="showScreen('screen-merchant-result')">
+          <span class="col-name row-title">Durgin Ironmantle</span>
+          <span class="col-detail row-meta"><i class="ti ti-user"></i> Dwarf</span>
+          <span class="col-detail row-meta"><i class="ti ti-hammer"></i> Blacksmith</span>
+          <span class="col-detail-wide row-meta"><i class="ti ti-building"></i> City · Trade Hub</span>
+          <span class="col-detail row-meta"><i class="ti ti-level-bolt"></i> 1–8</span>
+          <span class="col-rarity"><span class="badge badge-uncommon">Uncommon</span></span>
+        </div>
+
+        <div class="list-row" onclick="showScreen('screen-merchant-result')">
+          <span class="col-name row-title muted">Unnamed Merchant</span>
+          <span class="col-detail row-meta"><i class="ti ti-user"></i> Human</span>
+          <span class="col-detail row-meta"><i class="ti ti-flask"></i> Alchemist</span>
+          <span class="col-detail-wide row-meta"><i class="ti ti-building"></i> Town · Frontier</span>
+          <span class="col-detail row-meta"><i class="ti ti-level-bolt"></i> 1–4</span>
+          <span class="col-rarity"><span class="badge badge-common">Common</span></span>
+        </div>
+
+        <div class="list-row" onclick="showScreen('screen-merchant-result')">
+          <span class="col-name row-title">Seraphine Voss</span>
+          <span class="col-detail row-meta"><i class="ti ti-user"></i> Elf</span>
+          <span class="col-detail row-meta"><i class="ti ti-wand"></i> Arcane Goods</span>
+          <span class="col-detail-wide row-meta"><i class="ti ti-building"></i> Metropolis · Academic</span>
+          <span class="col-detail row-meta"><i class="ti ti-level-bolt"></i> 3–12</span>
+          <span class="col-rarity"><span class="badge badge-rare">Rare</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── New Merchant Form ─────────────────────────────── -->
+    <div id="screen-merchant-new" class="screen">
+      <div class="screen-header">
+        <div>
+          <h1>New Merchant</h1>
+          <p class="screen-subtitle">Set parameters and generate</p>
+        </div>
+        <button class="btn-primary" onclick="showScreen('screen-merchant-result')">
+          <i class="ti ti-wand"></i> Generate
+        </button>
+      </div>
+
+      <div class="form-card">
+        <p class="form-section-title">Name</p>
+        <div class="field-group">
+          <label class="field-label">
+            Merchant name <span class="field-optional">optional</span>
+          </label>
+          <input type="text" class="field-input" placeholder="Leave blank for unnamed merchant" />
+        </div>
+      </div>
+
+      <div class="form-card">
+        <p class="form-section-title">Location</p>
+        <div class="field-grid">
+          <div class="field-group">
+            <label class="field-label">Settlement size</label>
+            <select class="field-select">
+              <option>Village</option>
+              <option>Town</option>
+              <option selected>City</option>
+              <option>Metropolis</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Economy</label>
+            <select class="field-select">
+              <option>Frontier</option>
+              <option selected>Trade Hub</option>
+              <option>Academic</option>
+              <option>Military</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <p class="form-section-title">Merchant</p>
+        <div class="field-grid">
+          <div class="field-group">
+            <label class="field-label">Race</label>
+            <select class="field-select">
+              <option selected>Any</option>
+              <option>Dwarf</option>
+              <option>Elf</option>
+              <option>Gnome</option>
+              <option>Human</option>
+              <option>Halfling</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Store type</label>
+            <select class="field-select">
+              <option selected>Any</option>
+              <option>Blacksmith</option>
+              <option>Alchemist</option>
+              <option>Arcane Goods</option>
+              <option>General Store</option>
+            </select>
+          </div>
+          <div class="field-group field-group-full">
+            <label class="field-label">Stocking style</label>
+            <select class="field-select">
+              <option>Broad — wide variety of items</option>
+              <option selected>Focused — specialises in one area</option>
+              <option>Curated — few high quality items</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <p class="form-section-title">Stock</p>
+        <div class="form-stock">
+
+          <div class="slider-group">
+            <label class="field-label slider-label">
+              Arcane tilt <span class="slider-value" id="arcane-display">20%</span>
+            </label>
+            <input type="range" class="slider" min="0" max="100" value="20" step="1"
+              oninput="document.getElementById('arcane-display').textContent = this.value + '%'" />
+          </div>
+
+          <div class="slider-group">
+            <label class="field-label slider-label">
+              Pricing modifier <span class="slider-value" id="price-display">+0%</span>
+            </label>
+            <input type="range" class="slider" min="-50" max="50" value="0" step="1"
+              oninput="const v = parseInt(this.value); document.getElementById('price-display').textContent = (v > 0 ? '+' : '') + v + '%'" />
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Rarity</label>
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" checked /> Common
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" checked /> Uncommon
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" /> Rare
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" /> Unique
+              </label>
+            </div>
+          </div>
+
+          <div class="filters-section">
+            <button class="filters-toggle" onclick="toggleFilters()">
+              <i class="ti ti-chevron-right" id="filters-icon"></i>
+              <span class="form-section-title" style="margin: 0;">Filters</span>
+              <span class="filters-sub">— include / exclude tags</span>
+            </button>
+            <div class="filters-body" id="filters-body">
+              <div class="field-grid">
+                <div class="field-group">
+                  <label class="field-label">Include tags</label>
+                  <input type="text" class="field-input" placeholder="e.g. sword, fire…" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label">Exclude tags</label>
+                  <input type="text" class="field-input" placeholder="e.g. cursed, artifact…" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Merchant Result ───────────────────────────────── -->
+    <div id="screen-merchant-result" class="screen">
+      <button onclick="goHome()">← Back</button>
+      <p>Merchant result — coming soon</p>
+    </div>
+
+    <!-- ─── Custom Data List ──────────────────────────────── -->
+    <div id="screen-custom-data" class="screen">
+      <button onclick="goHome()">← Back</button>
+      <p>Custom data — coming soon</p>
+    </div>
+
+    <!-- ─── Custom Data New Item ──────────────────────────── -->
+    <div id="screen-custom-new" class="screen">
+      <button onclick="goHome()">← Back</button>
+      <p>Custom data new item — coming soon</p>
+    </div>
+
+    <!-- ─── Custom Data From Existing ────────────────────── -->
+    <div id="screen-custom-existing" class="screen">
+      <button onclick="goHome()">← Back</button>
+      <p>Custom data from existing — coming soon</p>
+    </div>
+
+    <!-- ─── Settings ─────────────────────────────────────── -->
+    <div id="screen-settings" class="screen">
+      <button onclick="goHome()">← Back</button>
+      <p>Settings — coming soon</p>
+    </div>
+
   </div>
 
-  <div class="home-nav">
-    <button class="nav-card" onclick="showScreen('screen-merchants')">
-      <div class="nav-card-icon teal">
-        <i class="ti ti-building-store"></i>
-      </div>
-      <div class="nav-card-text">
-        <span class="nav-card-title">Merchants</span>
-        <span class="nav-card-sub">Generate and manage merchants</span>
-      </div>
-    </button>
-
-    <button class="nav-card" onclick="showScreen('screen-custom-data')">
-      <div class="nav-card-icon blue">
-        <i class="ti ti-database"></i>
-      </div>
-      <div class="nav-card-text">
-        <span class="nav-card-title">Custom Data</span>
-        <span class="nav-card-sub">Homebrew items and modifications</span>
-      </div>
-    </button>
-
-    <button class="nav-card" onclick="showScreen('screen-settings')">
-      <div class="nav-card-icon gold">
-        <i class="ti ti-settings"></i>
-      </div>
-      <div class="nav-card-text">
-        <span class="nav-card-title">Settings</span>
-        <span class="nav-card-sub">App preferences</span>
-      </div>
-    </button>
-  </div>
-</div>
-
-<div id="screen-merchants" class="screen">
-  <div class="screen-header">
-    <div>
-      <h1>Merchants</h1>
-      <p class="screen-subtitle">3 saved</p>
-    </div>
-    <button class="btn-primary" onclick="showScreen('screen-merchant-new')">
-      <i class="ti ti-plus"></i> New Merchant
-    </button>
-  </div>
-
-  <div class="list-container">
-    <div class="list-header">
-      <span class="col-name">Name</span>
-      <span class="col-detail">Race</span>
-      <span class="col-detail">Type</span>
-      <span class="col-detail-wide">Settlement · Economy</span>
-      <span class="col-detail">Level</span>
-      <span class="col-rarity">Rarity</span>
-    </div>
-
-    <div class="list-row" onclick="showScreen('screen-merchant-result')">
-      <span class="col-name row-title">Durgin Ironmantle</span>
-      <span class="col-detail row-meta"><i class="ti ti-user"></i> Dwarf</span>
-      <span class="col-detail row-meta"><i class="ti ti-hammer"></i> Blacksmith</span>
-      <span class="col-detail-wide row-meta"><i class="ti ti-building"></i> City · Trade Hub</span>
-      <span class="col-detail row-meta"><i class="ti ti-level-bolt"></i> 1–8</span>
-      <span class="col-rarity"><span class="badge badge-uncommon">Uncommon</span></span>
-    </div>
-
-    <div class="list-row" onclick="showScreen('screen-merchant-result')">
-      <span class="col-name row-title muted">Unnamed Merchant</span>
-      <span class="col-detail row-meta"><i class="ti ti-user"></i> Human</span>
-      <span class="col-detail row-meta"><i class="ti ti-flask"></i> Alchemist</span>
-      <span class="col-detail-wide row-meta"><i class="ti ti-building"></i> Town · Frontier</span>
-      <span class="col-detail row-meta"><i class="ti ti-level-bolt"></i> 1–4</span>
-      <span class="col-rarity"><span class="badge badge-common">Common</span></span>
-    </div>
-
-    <div class="list-row" onclick="showScreen('screen-merchant-result')">
-      <span class="col-name row-title">Seraphine Voss</span>
-      <span class="col-detail row-meta"><i class="ti ti-user"></i> Elf</span>
-      <span class="col-detail row-meta"><i class="ti ti-wand"></i> Arcane Goods</span>
-      <span class="col-detail-wide row-meta"><i class="ti ti-building"></i> Metropolis · Academic</span>
-      <span class="col-detail row-meta"><i class="ti ti-level-bolt"></i> 3–12</span>
-      <span class="col-rarity"><span class="badge badge-rare">Rare</span></span>
-    </div>
-  </div>
-</div>
-
-<div id="screen-custom-data" class="screen">
-  <button onclick="goHome()">← Back</button>
-  <p>Custom Data screen — coming soon</p>
-</div>
-
-<div id="screen-settings" class="screen">
-  <button onclick="goHome()">← Back</button>
-  <p>Settings screen — coming soon</p>
-</div>
-<!--<div id="screen-merchants"     class="screen"></div>
-    <div id="screen-merchant-new"  class="screen"></div>
-    <div id="screen-merchant-result" class="screen"></div>
-    <div id="screen-custom-data"   class="screen"></div>
-    <div id="screen-custom-new"    class="screen"></div>
-    <div id="screen-custom-existing" class="screen"></div>
-    <div id="screen-settings"      class="screen"></div> -->
-  </div>
-
-  <!-- Your scripts -->
   <script src="app.js"></script>
 </body>
 </html>

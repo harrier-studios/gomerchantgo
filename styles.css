@@ -143,3 +143,158 @@ h1 {
   font-size: 12px;
   color: #6B7280;
 }
+
+/* ─── Screen Header ───────────────────────────────────── */
+
+.screen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.75rem;
+}
+
+.screen-subtitle {
+  font-size: 13px;
+  color: #6B7280;
+  margin-top: 3px;
+}
+
+/* ─── Primary Button ──────────────────────────────────── */
+
+.btn-primary {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  background: #1D9E75;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary:hover {
+  background: #178a64;
+}
+
+.btn-primary:disabled {
+  background: #2A2F36;
+  color: #6B7280;
+  cursor: not-allowed;
+}
+
+/* ─── List ────────────────────────────────────────────── */
+
+.list-container {
+  background: #23272E;
+  border: 0.5px solid #3A3F47;
+  border-radius: 12px;
+  padding: 0.25rem 1.25rem 0.5rem;
+}
+
+.list-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0 4px;
+  border-bottom: 0.5px solid #3A3F47;
+}
+
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 0.5px solid #3A3F47;
+  cursor: pointer;
+}
+
+.list-row:last-child {
+  border-bottom: none;
+}
+
+.list-row:hover {
+  background: #2A2F36;
+  margin: 0 -1.25rem;
+  padding: 10px 1.25rem;
+}
+
+/* ─── List Columns ────────────────────────────────────── */
+
+.col-name {
+  flex: 3;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  color: #6B7280;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.col-detail {
+  flex: 1;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  color: #6B7280;
+}
+
+.col-detail-wide {
+  flex: 1.5;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  color: #6B7280;
+}
+
+.col-rarity {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  color: #6B7280;
+}
+
+/* ─── Row Content ─────────────────────────────────────── */
+
+.row-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: #F2F4F6;
+}
+
+.row-meta {
+  font-family: 'Questrial', sans-serif;
+  font-size: 13px;
+  color: #6B7280;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.muted {
+  color: #4B5563;
+}
+
+/* ─── Badges ──────────────────────────────────────────── */
+
+.badge {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.badge-common { background: #0D3D2E; color: #1D9E75; }
+.badge-uncommon { background: #1A2A33; color: #5B7F95; }
+.badge-rare { background: #332A12; color: #A07820; }
+.badge-unique { background: #2A1A3D; color: #8B5CF6; }
