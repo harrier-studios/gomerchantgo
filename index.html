@@ -493,11 +493,219 @@
   </div>
 </div> <!-- end screen-custom-existing -->
 
-    <!-- ─── Settings ─────────────────────────────────────── -->
-    <div id="screen-settings" class="screen">
-      <button onclick="goHome()">← Back</button>
-      <p>Settings — coming soon</p>
-    </div> <!-- end screen-settings -->
+<!-- ─── Settings ─────────────────────────────────────── -->
+<div id="screen-settings" class="screen">
+  <div class="screen-header">
+    <div>
+      <h1>Settings</h1>
+      <p class="screen-subtitle">App preferences and data management</p>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <p class="form-section-title">Appearance</p>
+    <p class="field-label" style="margin-bottom: 10px;">Theme</p>
+    <div class="theme-btn-group">
+      <button class="theme-btn" onclick="setTheme(this, 'light')">
+        <i class="ti ti-sun"></i> Light
+      </button>
+      <button class="theme-btn active" onclick="setTheme(this, 'system')">
+        <i class="ti ti-device-desktop"></i> System
+      </button>
+      <button class="theme-btn" onclick="setTheme(this, 'dark')">
+        <i class="ti ti-moon"></i> Dark
+      </button>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <p class="form-section-title">Defaults</p>
+    <p style="font-size: 12px; color: #4B5563; margin-bottom: 1.25rem;">These values pre-fill the generator form. You can still change them per merchant.</p>
+    <div class="field-grid" style="margin-bottom: 16px;">
+      <div class="field-group">
+        <label class="field-label">Settlement size</label>
+        <select class="field-select">
+          <option>Village</option>
+          <option>Town</option>
+          <option selected>City</option>
+          <option>Metropolis</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Economy</label>
+        <select class="field-select">
+          <option>Frontier</option>
+          <option selected>Trade Hub</option>
+          <option>Academic</option>
+          <option>Military</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Merchant race</label>
+        <select class="field-select">
+          <option selected>Any</option>
+          <option>Dwarf</option>
+          <option>Elf</option>
+          <option>Gnome</option>
+          <option>Human</option>
+          <option>Halfling</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Store type</label>
+        <select class="field-select">
+          <option selected>Any</option>
+          <option>Blacksmith</option>
+          <option>Alchemist</option>
+          <option>Arcane Goods</option>
+          <option>General Store</option>
+        </select>
+      </div>
+      <div class="field-group field-group-full">
+        <label class="field-label">Stocking style</label>
+        <select class="field-select">
+          <option>Broad — wide variety of items</option>
+          <option selected>Focused — specialises in one area</option>
+          <option>Curated — few high quality items</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div class="slider-group">
+        <label class="field-label slider-label">
+          Arcane tilt <span class="slider-value" id="default-arcane-display">20%</span>
+        </label>
+        <input type="range" class="slider" min="0" max="100" value="20" step="1"
+          oninput="document.getElementById('default-arcane-display').textContent = this.value + '%'" />
+      </div>
+
+      <div class="slider-group">
+        <label class="field-label slider-label">
+          Pricing modifier <span class="slider-value" id="default-price-display">+0%</span>
+        </label>
+        <input type="range" class="slider" min="-50" max="50" value="0" step="1"
+          oninput="const v = parseInt(this.value); document.getElementById('default-price-display').textContent = (v > 0 ? '+' : '') + v + '%'" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Rarity</label>
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" checked /> Common
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" checked /> Uncommon
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" /> Rare
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" /> Unique
+          </label>
+        </div>
+      </div>
+
+      <div class="filters-section">
+        <button class="filters-toggle" onclick="toggleDefaultFilters()">
+          <i class="ti ti-chevron-right" id="default-filters-icon"></i>
+          <span class="form-section-title" style="margin: 0;">Filters</span>
+          <span class="filters-sub">— default include / exclude tags</span>
+        </button>
+        <div class="filters-body" id="default-filters-body">
+          <div class="field-grid" style="margin-top: 1rem;">
+            <div class="field-group">
+              <label class="field-label">Include tags</label>
+              <input type="text" class="field-input" placeholder="e.g. sword, fire…" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Exclude tags</label>
+              <input type="text" class="field-input" placeholder="e.g. cursed, artifact…" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <p class="form-section-title">Data</p>
+
+    <div class="settings-row">
+      <div class="settings-row-text">
+        <p class="settings-row-title">Update item database</p>
+        <p class="settings-row-sub">Download the latest items.json from GitHub</p>
+      </div>
+      <button class="btn-primary">
+        <i class="ti ti-download"></i> Update
+      </button>
+    </div>
+
+    <div class="settings-row">
+      <div class="settings-row-text">
+        <p class="settings-row-title">Export merchants</p>
+        <p class="settings-row-sub">Share or back up your saved merchants</p>
+      </div>
+      <button class="btn-data">
+        <i class="ti ti-upload"></i> Export
+      </button>
+    </div>
+
+    <div class="settings-row">
+      <div class="settings-row-text">
+        <p class="settings-row-title">Import merchants</p>
+        <p class="settings-row-sub">Load merchants shared by another GM</p>
+      </div>
+      <button class="btn-data">
+        <i class="ti ti-download"></i> Import
+      </button>
+    </div>
+
+    <div class="settings-row">
+      <div class="settings-row-text">
+        <p class="settings-row-title">Export custom data</p>
+        <p class="settings-row-sub">Share or back up your homebrew items</p>
+      </div>
+      <button class="btn-data">
+        <i class="ti ti-upload"></i> Export
+      </button>
+    </div>
+
+    <div class="settings-row">
+      <div class="settings-row-text">
+        <p class="settings-row-title">Import custom data</p>
+        <p class="settings-row-sub">Load homebrew items shared by another GM</p>
+      </div>
+      <button class="btn-data">
+        <i class="ti ti-download"></i> Import
+      </button>
+    </div>
+
+    <div class="settings-row">
+      <div class="settings-row-text">
+        <p class="settings-row-title">Browse local files</p>
+        <p class="settings-row-sub">Your merchants, custom items, and settings are stored here. You can edit or back up these files directly.</p>
+        <div class="path-row">
+          <span class="path-display" id="data-path">~/merchants/data</span>
+          <button class="btn-copy" onclick="copyPath()">
+            <i class="ti ti-copy"></i> Copy
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-row settings-row-danger">
+      <div class="settings-row-text">
+        <p class="settings-row-title danger-text">Reset all data</p>
+        <p class="settings-row-sub">Permanently delete all merchants and custom items</p>
+      </div>
+      <button class="btn-danger">
+        <i class="ti ti-trash"></i> Reset
+      </button>
+    </div>
+
+  </div>
+</div> <!-- end screen-settings -->
 
   </div> <!-- end app -->
 

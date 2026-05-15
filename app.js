@@ -60,3 +60,30 @@ function addTag(e, input) {
   input.parentElement.insertBefore(tag, input);
   input.value = '';
 }
+
+// ─── Settings ─────────────────────────────────────────────
+
+function setTheme(btn, theme) {
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Theme switching logic will go here
+}
+
+function toggleDefaultFilters() {
+  const body = document.getElementById('default-filters-body');
+  const icon = document.getElementById('default-filters-icon');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open');
+  icon.className = isOpen ? 'ti ti-chevron-right' : 'ti ti-chevron-down';
+}
+
+function copyPath() {
+  const path = document.getElementById('data-path').textContent;
+  navigator.clipboard.writeText(path).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    btn.innerHTML = '<i class="ti ti-check"></i> Copied';
+    setTimeout(() => {
+      btn.innerHTML = '<i class="ti ti-copy"></i> Copy';
+    }, 1500);
+  });
+}
