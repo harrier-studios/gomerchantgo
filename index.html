@@ -325,17 +325,173 @@
       </div>
     </div> <!-- end screen-custom-data -->
 
-    <!-- ─── Custom Data New Item ──────────────────────────── -->
-    <div id="screen-custom-new" class="screen">
-      <button onclick="goHome()">← Back</button>
-      <p>Custom data new item — coming soon</p>
-    </div> <!-- end screen-custom-new -->
+<!-- ─── Custom Data New Item ──────────────────────────── -->
+<div id="screen-custom-new" class="screen">
+  <div class="screen-header">
+    <div>
+      <h1>New Item</h1>
+      <p class="screen-subtitle">Create a homebrew item</p>
+    </div>
+    <button class="btn-primary">
+      <i class="ti ti-device-floppy"></i> Save Item
+    </button>
+  </div>
 
-    <!-- ─── Custom Data From Existing ────────────────────── -->
-    <div id="screen-custom-existing" class="screen">
-      <button onclick="goHome()">← Back</button>
-      <p>Custom data from existing — coming soon</p>
-    </div> <!-- end screen-custom-existing -->
+  <div class="form-card">
+    <p class="form-section-title">Item</p>
+    <div class="field-grid">
+      <div class="field-group field-group-full">
+        <label class="field-label">Name</label>
+        <input type="text" class="field-input" placeholder="e.g. Grimtooth's Gutting Knife" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Type</label>
+        <select class="field-select">
+          <option value="">Select type…</option>
+          <option>Weapon</option>
+          <option>Armor</option>
+          <option>Shield</option>
+          <option>Consumable</option>
+          <option>Worn Item</option>
+          <option>Held Item</option>
+          <option>Adventuring Gear</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Category</label>
+        <select class="field-select">
+          <option value="">Select category…</option>
+          <option>Simple Weapon</option>
+          <option>Martial Weapon</option>
+          <option>Advanced Weapon</option>
+          <option>Light Armor</option>
+          <option>Medium Armor</option>
+          <option>Heavy Armor</option>
+          <option>Potion</option>
+          <option>Scroll</option>
+          <option>Wand</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <p class="form-section-title">Stats</p>
+    <div class="field-grid">
+      <div class="field-group">
+        <label class="field-label">Level</label>
+        <input type="text" class="field-input" placeholder="0" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Rarity</label>
+        <select class="field-select">
+          <option>Common</option>
+          <option>Uncommon</option>
+          <option>Rare</option>
+          <option>Unique</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Price</label>
+        <input type="text" class="field-input" placeholder="e.g. 5 gp, 3 sp" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Bulk</label>
+        <input type="text" class="field-input" placeholder="e.g. 1, L, —" />
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <p class="form-section-title">Details</p>
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <div class="field-group">
+        <label class="field-label">Traits</label>
+        <div class="tag-input-wrapper" id="traits-wrapper" onclick="this.querySelector('.tag-input').focus()">
+          <input class="tag-input" type="text" placeholder="Type a trait and press Enter…" onkeydown="addTag(event, this)" />
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">
+          Source <span class="field-optional">optional</span>
+        </label>
+        <input type="text" class="field-input" placeholder="e.g. Homebrew, Campaign name…" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">
+          Description <span class="field-optional">optional</span>
+        </label>
+        <textarea class="field-input field-textarea" placeholder="Item description, special properties, GM notes…"></textarea>
+      </div>
+    </div>
+  </div>
+</div> <!-- end screen-custom-new -->
+
+<!-- ─── Custom Data From Existing ────────────────────── -->
+<div id="screen-custom-existing" class="screen">
+  <div class="screen-header">
+    <div>
+      <h1>Create From Existing</h1>
+      <p class="screen-subtitle">Select an item to copy and modify</p>
+    </div>
+    <button class="btn-primary" id="copy-item-btn" disabled>
+      <i class="ti ti-copy"></i> Copy Item
+    </button>
+  </div>
+
+  <div class="form-card" style="margin-bottom: 12px;">
+    <div class="search-row">
+      <input type="text" class="field-input search-input" placeholder="Search items…" id="item-search" oninput="filterItems()" />
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Type</span>
+      <button class="filter-btn active" onclick="setSearchFilter(this, 'type')">Any</button>
+      <button class="filter-btn" onclick="setSearchFilter(this, 'type')">Weapon</button>
+      <button class="filter-btn" onclick="setSearchFilter(this, 'type')">Armor</button>
+      <button class="filter-btn" onclick="setSearchFilter(this, 'type')">Consumable</button>
+      <button class="filter-btn" onclick="setSearchFilter(this, 'type')">Worn</button>
+      <button class="filter-btn" onclick="setSearchFilter(this, 'type')">Shield</button>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Rarity</span>
+      <button class="filter-btn active" onclick="setSearchFilter(this, 'rarity')">Any</button>
+      <button class="filter-btn" onclick="setSearchFilter(this, 'rarity')">Common</button>
+      <button class="filter-btn" onclick="setSearchFilter(this, 'rarity')">Uncommon</button>
+      <button class="filter-btn" onclick="setSearchFilter(this, 'rarity')">Rare</button>
+      <button class="filter-btn" onclick="setSearchFilter(this, 'rarity')">Unique</button>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Level</span>
+      <input type="range" class="slider" min="0" max="20" value="0" step="1"
+        oninput="updateLevelRange(this, 'level-min-val')" id="level-min" style="accent-color: #5B7F95;" />
+      <input type="range" class="slider" min="0" max="20" value="20" step="1"
+        oninput="updateLevelRange(this, 'level-max-val')" id="level-max" style="accent-color: #5B7F95;" />
+      <span class="slider-value" style="min-width: 48px; text-align: right;">
+        <span id="level-min-val">0</span>–<span id="level-max-val">20</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="list-container">
+    <div class="list-header">
+      <span class="col-item-name">Name</span>
+      <span class="col-detail">Type</span>
+      <span class="col-level">Level</span>
+      <span class="col-bulk">Bulk</span>
+      <span class="col-price">Price</span>
+      <span class="col-rarity">Rarity</span>
+    </div>
+    <div id="existing-items-list">
+      <div class="empty-state">
+        <i class="ti ti-database"></i>
+        <p>No items loaded</p>
+        <span>items.json will populate this list</span>
+      </div>
+    </div>
+  </div>
+</div> <!-- end screen-custom-existing -->
 
     <!-- ─── Settings ─────────────────────────────────────── -->
     <div id="screen-settings" class="screen">

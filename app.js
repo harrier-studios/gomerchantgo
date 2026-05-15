@@ -27,3 +27,36 @@ function setFilterActive(btn, group) {
   groupBtns.forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 }
+
+// ─── Create From Existing ─────────────────────────────────
+
+function setSearchFilter(btn, group) {
+  const row = btn.parentElement;
+  row.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function updateLevelRange(slider, displayId) {
+  const min = parseInt(document.getElementById('level-min').value);
+  const max = parseInt(document.getElementById('level-max').value);
+  document.getElementById('level-min-val').textContent = min;
+  document.getElementById('level-max-val').textContent = max;
+}
+
+function filterItems() {
+  // Placeholder — will be wired up when items.json is loaded
+}
+
+// ─── Tag Input ────────────────────────────────────────────
+
+function addTag(e, input) {
+  if (e.key !== 'Enter' && e.key !== ',') return;
+  e.preventDefault();
+  const val = input.value.trim().replace(/,$/, '');
+  if (!val) return;
+  const tag = document.createElement('span');
+  tag.className = 'tag';
+  tag.innerHTML = `${val} <button onclick="this.parentElement.remove()" aria-label="Remove tag">×</button>`;
+  input.parentElement.insertBefore(tag, input);
+  input.value = '';
+}

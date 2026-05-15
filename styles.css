@@ -462,13 +462,14 @@ h1 {
 }
 
 .filter-btn {
-  font-family: 'Questrial', sans-serif;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
   font-size: 13px;
   padding: 5px 12px;
   border-radius: 6px;
   border: 0.5px solid #3A3F47;
   background: #23272E;
-  color: #9CA3AF;
+  color: #4B5563;
   cursor: pointer;
 }
 
@@ -669,4 +670,102 @@ h1 {
 .empty-state span {
   font-size: 13px;
   color: #4B5563;
+}
+
+/* ─── Create From Existing ────────────────────────────────── */
+
+.search-row {
+  margin-bottom: 12px;
+}
+
+.search-input {
+  width: 100%;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.filter-row:last-child {
+  margin-bottom: 0;
+}
+
+.filter-row .filter-label {
+  min-width: 40px;
+}
+
+.filter-row .slider {
+  flex: 1;
+  min-width: 80px;
+}
+
+/* ─── Tag Input ───────────────────────────────────────────── */
+
+.tag-input-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+  background: #1a1a1a;
+  border: 0.5px solid #3A3F47;
+  border-radius: 6px;
+  padding: 6px 8px;
+  min-height: 38px;
+  cursor: text;
+}
+
+.tag-input-wrapper:focus-within {
+  border-color: #5B7F95;
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #1A2A33;
+  color: #5B7F95;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.tag button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #5B7F95;
+  font-size: 13px;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.tag button:hover {
+  color: #F2F4F6;
+}
+
+.tag-input {
+  background: none;
+  border: none;
+  outline: none;
+  font-family: 'Questrial', sans-serif;
+  font-size: 14px;
+  color: #F2F4F6;
+  min-width: 120px;
+  flex: 1;
+}
+
+/* ─── Textarea ────────────────────────────────────────────── */
+
+.field-textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.5;
 }
