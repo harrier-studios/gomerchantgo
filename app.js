@@ -1,10 +1,4 @@
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-// THIS IS A TEMPORARY BACK BUTTON FOR DEVELOPMENT/TESTING.
-// DO NOT UNCOMMENT THIS UNLESS YOU KNOW WHAT YOU'RE DOING.
+// ─── Navigation ───────────────────────────────────────────
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -15,7 +9,17 @@ function goHome() {
   showScreen('screen-home');
 }
 
-// END TEMPORARY BACK BUTTON
+// ─── New Merchant Form ────────────────────────────────────
+
+function toggleFilters() {
+  const body = document.getElementById('filters-body');
+  const icon = document.getElementById('filters-icon');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open');
+  icon.className = isOpen ? 'ti ti-chevron-right' : 'ti ti-chevron-down';
+}
+
+// ─── Merchant Result ──────────────────────────────────────
 
 function setFilterActive(btn, group) {
   const allBtns = document.querySelectorAll('.filter-btn');
