@@ -475,14 +475,26 @@
   </div>
 
   <div class="list-container">
-    <div class="list-header">
-      <span class="col-item-name">Name</span>
-      <span class="col-detail">Type</span>
-      <span class="col-level">Level</span>
-      <span class="col-bulk">Bulk</span>
-      <span class="col-price">Price</span>
-      <span class="col-rarity">Rarity</span>
-    </div>
+<div class="list-header" id="existing-items-header">
+  <span class="col-item-name sortable active-sort" onclick="sortExistingItems('name')">
+    Name <i class="ti ti-chevron-up" id="sort-icon-name"></i>
+  </span>
+  <span class="col-detail sortable" onclick="sortExistingItems('type')">
+    Type <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-type"></i>
+  </span>
+  <span class="col-level sortable" onclick="sortExistingItems('level')">
+    Level <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-level"></i>
+  </span>
+  <span class="col-bulk sortable" onclick="sortExistingItems('bulk')">
+    Bulk <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-bulk"></i>
+  </span>
+  <span class="col-price sortable" onclick="sortExistingItems('price')">
+    Price <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-price"></i>
+  </span>
+  <span class="col-rarity sortable" onclick="sortExistingItems('rarity')">
+    Rarity <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-rarity"></i>
+  </span>
+</div>
     <div id="existing-items-list">
       <div class="empty-state">
         <i class="ti ti-database"></i>

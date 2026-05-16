@@ -1,4 +1,7 @@
 // ─── App State ────────────────────────────────────────────
+let existingSortColumn = 'name';
+let existingSortDirection = 'asc';
+
 
 const state = {
   items: [],
@@ -7,8 +10,7 @@ const state = {
 };
 
 // Adds filtering for columns in Custom Items
-let existingSortColumn = 'name';
-let existingSortDirection = 'asc';
+
 
 // ─── Utilities ────────────────────────────────────────────
 
@@ -263,12 +265,24 @@ function renderExistingItems() {
     return true;
   });
 
-    const filtered = state.items.filter(item => {
-    if (search && !item.name.toLowerCase().includes(search)) return false;
-    if (typeFilter !== 'Any' && item.type?.toLowerCase() !== typeFilter.toLowerCase()) return false;
-    if (rarityFilter !== 'Any' && item.rarity?.toLowerCase() !== rarityFilter.toLowerCase()) return false;
-    if (item.level < levelMin || item.level > levelMax) return false;
-    return true;
+  const sorted = [...filtered].sort((a, b) => {
+    let valA = a[existingSortColumn];
+    let valB = b[existingSortColumn];
+
+    if (existingSortColumn === 'price') {
+      valA = (a.price?.gp || 0) * 100 + (a.price?.sp || 0) * 10 + (a.price?.cp || 0);
+      valB = (b.price?.gp || 0) * 100 + (b.price?.sp || 0) * 10 + (b.price?.cp || 0);
+    }
+
+    if (valA === null || valA === undefined) return 1;
+    if (valB === null || valB === undefined) return -1;
+
+    if (typeof valA === 'string') {
+      return existingSortDirection === 'asc'
+        ? valA.localeCompare(valB)
+        : valB.localeCompare(valA);
+    }
+    return existingSortDirection === 'asc' ? valA - valB : valB - valA;
   });
 
   const container = document.getElementById('existing-items-list');
@@ -283,7 +297,7 @@ function renderExistingItems() {
     return;
   }
 
-  container.innerHTML = filtered.slice(0, 200).map(item => `
+  container.innerHTML = sorted.slice(0, 200).map(item => `
     <div class="list-row" onclick="selectExistingItem(this, '${item.id}')">
       <span class="col-item-name row-title">${item.name}</span>
       <span class="col-detail row-meta">${item.type || '—'}</span>
