@@ -118,55 +118,55 @@
           <div class="field-group">
             <label class="field-label">Settlement size</label>
             <select class="field-select" id="settlement-select">
-              <option>Village</option>
-              <option>Town</option>
-              <option selected>City</option>
-              <option>Metropolis</option>
+              <option value="city" selected>City</option>
+              <option value="metropolis">Metropolis</option>
+              <option value="town">Town</option>
+              <option value="village">Village</option>
             </select>
           </div>
           <div class="field-group">
             <label class="field-label">Economy</label>
             <select class="field-select" id="economy-select">
-              <option>Frontier</option>
-              <option selected>Trade Hub</option>
-              <option>Academic</option>
-              <option>Military</option>
+              <option value="trade-hub" selected>Trade Hub</option>
+              <option value="academic">Academic</option>
+              <option value="arcane">Arcane</option>
+              <option value="divine">Divine</option>
+              <option value="frontier">Frontier</option>
+              <option value="military">Military</option>
             </select>
           </div>
         </div>
       </div>
 
-      <div class="form-card">
-        <p class="form-section-title">Merchant</p>
-        <div class="field-grid">
-          <div class="field-group">
-            <label class="field-label">Race</label>
-            <select class="field-select" id="ancestry-select">
-              <option selected>Any</option>
-              <option>Dwarf</option>
-              <option>Elf</option>
-              <option>Gnome</option>
-              <option>Human</option>
-              <option>Halfling</option>
-            </select>
-          </div>
+<div class="form-card">
+  <p class="form-section-title">Merchant</p>
+  <div class="field-grid">
+    <div class="field-group">
+      <label class="field-label">Ancestry</label>
+      <select class="field-select" id="ancestry-select">
+        <option value="any" selected>Any</option>
+      </select>
+    </div>
           <div class="field-group">
             <label class="field-label">Store type</label>
             <select class="field-select" id="store-type-select">
-              <option selected>Any</option>
-              <option>Blacksmith</option>
-              <option>Alchemist</option>
-              <option>Arcane Goods</option>
-              <option>General Store</option>
+              <option value="any" selected>Any</option>
+              <option value="alchemist">Alchemist</option>
+              <option value="arcane-goods">Arcane Goods</option>
+              <option value="blacksmith">Blacksmith</option>
+              <option value="bowyer">Bowyer</option>
+              <option value="clothier">Clothier</option>
+              <option value="divine-goods">Divine Goods</option>
+              <option value="general-store">General Store</option>
             </select>
           </div>
           <div class="field-group field-group-full">
             <label class="field-label">Stocking style</label>
             <select class="field-select" id="stocking-style-select">
-              <option>Broad — wide variety of items</option>
-              <option selected>Focused — specialises in one area</option>
-              <option>Curated — few high quality items</option>
-            </select>
+              <option value="broad">Broad — wide variety of items</option>
+              <option value="curated">Curated — few high quality items</option>
+              <option value="focused" selected>Focused — specialises in one area</option>
+             </select> 
           </div>
         </div>
       </div>
