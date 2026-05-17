@@ -31,8 +31,8 @@
           <h1>Merchants</h1>
           <p class="home-subtitle">GM Toolkit</p>
         </div>
-        <button class="theme-toggle" aria-label="Toggle theme">
-          <i class="ti ti-moon"></i>
+        <button class="theme-toggle" aria-label="Toggle theme" onclick="cycleTheme()">
+          <i class="ti ti-sun-moon"></i>
         </button>
       </div>
 
@@ -186,7 +186,7 @@
             <label class="field-label slider-label">
               Pricing modifier <span class="slider-value" id="price-display">+0%</span>
             </label>
-            <input type="range" class="slider" min="-50" max="50" value="0" step="1"
+            <input type="range" class="slider" min="-75" max="100" value="0" step="1"
               oninput="formatPriceModifier(this.value, 'price-display')" />
           </div>
 
@@ -604,7 +604,7 @@
             <label class="field-label slider-label">
               Pricing modifier <span class="slider-value" id="default-price-display">+0%</span>
             </label>
-            <input type="range" class="slider" min="-50" max="50" value="0" step="1"
+            <input type="range" class="slider" min="-75" max="100" value="0" step="1"
               id="default-price-slider"
               oninput="formatPriceModifier(this.value, 'default-price-display')" />
           </div>
