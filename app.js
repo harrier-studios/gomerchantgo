@@ -1,7 +1,4 @@
 // ─── App State ────────────────────────────────────────────
-let existingSortColumn = 'name';
-let existingSortDirection = 'asc';
-
 
 const state = {
   items: [],
@@ -10,7 +7,8 @@ const state = {
 };
 
 // Adds filtering for columns in Custom Items
-
+let existingSortColumn = 'name';
+let existingSortDirection = 'asc';
 
 // ─── Utilities ────────────────────────────────────────────
 
@@ -32,6 +30,27 @@ function formatBulk(bulk) {
   return bulk.toString();
 }
 
+function capitalise(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+let currentEditItem = null;
+
+// Function below strips UUID references and html tags from item Descriptions.
+
+function cleanDescription(html) {
+  if (!html) return '';
+  // Remove @UUID references
+  let clean = html.replace(/@UUID\[[^\]]*\]/g, '');
+  // Convert <p> tags to newlines
+  clean = clean.replace(/<\/p>/gi, '\n').replace(/<p>/gi, '');
+  // Strip any remaining HTML tags
+  clean = clean.replace(/<[^>]*>/g, '');
+  // Clean up extra whitespace and blank lines
+  clean = clean.replace(/\n{3,}/g, '\n\n').trim();
+  return clean;
+}
 
 // ─── Data Loading ─────────────────────────────────────────
 
@@ -84,30 +103,183 @@ function setFilterActive(btn, group) {
 
 // ─── Create From Existing ─────────────────────────────────
 
-function setSearchFilter(btn, group) {
-  const row = btn.parentElement;
-  row.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+let selectedExistingItem = null;
+
+function initExistingItems() {
+  selectedExistingItem = null;
+  document.getElementById('copy-item-btn').disabled = true;
   renderExistingItems();
 }
 
-function updateLevelRange(slider, displayId) {
-  const min = parseInt(document.getElementById('level-min').value);
-  const max = parseInt(document.getElementById('level-max').value);
-  document.getElementById('level-min-val').textContent = min;
-  document.getElementById('level-max-val').textContent = max;
+function renderExistingItems() {
+  const search = document.getElementById('item-search').value.toLowerCase();
+  const typeBtn = document.querySelector('#screen-custom-existing .filter-row:nth-child(2) .filter-btn.active');
+  const rarityBtn = document.querySelector('#screen-custom-existing .filter-row:nth-child(3) .filter-btn.active');
+  const levelMin = parseInt(document.getElementById('level-min').value);
+  const levelMax = parseInt(document.getElementById('level-max').value);
+
+  const typeFilter = typeBtn ? typeBtn.textContent.trim() : 'Any';
+  const rarityFilter = rarityBtn ? rarityBtn.textContent.trim() : 'Any';
+
+  const filtered = state.items.filter(item => {
+    if (search && !item.name.toLowerCase().includes(search)) return false;
+    if (typeFilter !== 'Any' && item.type?.toLowerCase() !== typeFilter.toLowerCase()) return false;
+    if (rarityFilter !== 'Any' && item.rarity?.toLowerCase() !== rarityFilter.toLowerCase()) return false;
+    if (item.level < levelMin || item.level > levelMax) return false;
+    return true;
+  });
+
+  const sorted = [...filtered].sort((a, b) => {
+    let valA = a[existingSortColumn];
+    let valB = b[existingSortColumn];
+
+    if (existingSortColumn === 'price') {
+      valA = (a.price?.gp || 0) * 100 + (a.price?.sp || 0) * 10 + (a.price?.cp || 0);
+      valB = (b.price?.gp || 0) * 100 + (b.price?.sp || 0) * 10 + (b.price?.cp || 0);
+    }
+
+    if (valA === null || valA === undefined) return 1;
+    if (valB === null || valB === undefined) return -1;
+
+    if (typeof valA === 'string') {
+      return existingSortDirection === 'asc'
+        ? valA.localeCompare(valB)
+        : valB.localeCompare(valA);
+    }
+    return existingSortDirection === 'asc' ? valA - valB : valB - valA;
+  });
+
+  const container = document.getElementById('existing-items-list');
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <i class="ti ti-search"></i>
+        <p>No items found</p>
+        <span>Try adjusting your search or filters</span>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = sorted.slice(0, 200).map(item => `
+    <div class="list-row" onclick="selectExistingItem(this, '${item.id}')">
+      <span class="col-item-name row-title">${item.name}</span>
+      <span class="col-detail row-meta">${item.type || '—'}</span>
+      <span class="col-level row-meta">${item.level ?? '—'}</span>
+      <span class="col-bulk row-meta">${formatBulk(item.bulk)}</span>
+      <span class="col-price row-meta">${formatPrice(item.price)}</span>
+      <span class="col-rarity">
+        <span class="badge ${badgeClass(item.rarity)}">${item.rarity || '—'}</span>
+      </span>
+    </div>
+  `).join('');
 }
 
-function filterItems() {
+function selectExistingItem(row, itemId) {
+  document.querySelectorAll('#existing-items-list .list-row').forEach(r => {
+    r.classList.remove('selected');
+    r.querySelector('.col-item-name').style.color = '';
+  });
+  row.classList.add('selected');
+  row.querySelector('.col-item-name').style.color = '#5B7F95';
+  selectedExistingItem = state.items.find(i => i.id === itemId);
+  document.getElementById('copy-item-btn').disabled = false;
+}
+
+function formatPrice(price) {
+  if (!price) return '—';
+  if (typeof price === 'string') return price;
+  const parts = [];
+  if (price.gp) parts.push(`${price.gp} gp`);
+  if (price.sp) parts.push(`${price.sp} sp`);
+  if (price.cp) parts.push(`${price.cp} cp`);
+  return parts.join(' · ') || '—';
+}
+
+function copyExistingItem() {
+  console.log('copyExistingItem called', selectedExistingItem);
+  if (!selectedExistingItem) return;
+
+  const copy = {
+    id: generateId(),
+    sourceId: selectedExistingItem.id,
+    name: selectedExistingItem.name,
+    type: selectedExistingItem.type || '',
+    category: selectedExistingItem.category || '',
+    level: selectedExistingItem.level ?? 0,
+    price: selectedExistingItem.price || null,
+    bulk: selectedExistingItem.bulk ?? '',
+    rarity: selectedExistingItem.rarity || 'common',
+    traits: selectedExistingItem.traits || [],
+    source: selectedExistingItem.source || '',
+    description: selectedExistingItem.description || ''
+  };
+
+  openItemForm(copy);
+}
+
+function openItemForm(item) {
+  console.log('openItemForm called', item);
+
+  document.getElementById('item-name-input').value = item.name || '';
+  document.getElementById('item-type-select').value = capitalise(item.type) || '';
+  document.getElementById('item-category-select').value = capitalise(item.category) || '';
+  document.getElementById('item-level-input').value = item.level ?? '';
+  document.getElementById('item-rarity-select').value = capitalise(item.rarity) || 'Common';
+
+  const priceVal = formatPrice(item.price);
+  document.getElementById('item-price-input').value = priceVal === '—' ? '' : priceVal;
+
+  const bulkVal = formatBulk(item.bulk);
+  document.getElementById('item-bulk-input').value = bulkVal === '—' ? '' : bulkVal;
+
+  const wrapper = document.getElementById('traits-wrapper');
+  const tagInput = wrapper.querySelector('.tag-input');
+  wrapper.querySelectorAll('.tag').forEach(t => t.remove());
+  (item.traits || []).forEach(trait => {
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.innerHTML = `${trait} <button onclick="this.parentElement.remove()" aria-label="Remove tag">×</button>`;
+    wrapper.insertBefore(tag, tagInput);
+  });
+
+  document.getElementById('item-source-input').value = item.source || '';
+document.getElementById('item-description-input').value = cleanDescription(item.description || '');
+
+  currentEditItem = item;
+  showScreen('screen-custom-new');
+}
+
+// ---- Sort function ---------------------------------------
+
+function sortExistingItems(column) {
+  if (existingSortColumn === column) {
+    existingSortDirection = existingSortDirection === 'asc' ? 'desc' : 'asc';
+  } else {
+    existingSortColumn = column;
+    existingSortDirection = 'asc';
+  }
+  updateSortHeaders();
   renderExistingItems();
 }
 
-function updateLevelRange(slider, displayId) {
-  const min = parseInt(document.getElementById('level-min').value);
-  const max = parseInt(document.getElementById('level-max').value);
-  document.getElementById('level-min-val').textContent = min;
-  document.getElementById('level-max-val').textContent = max;
-  renderExistingItems();
+function updateSortHeaders() {
+  const columns = ['name', 'type', 'level', 'bulk', 'price', 'rarity'];
+  columns.forEach(col => {
+    const icon = document.getElementById(`sort-icon-${col}`);
+    const header = icon?.parentElement;
+    if (!icon || !header) return;
+    if (col === existingSortColumn) {
+      header.classList.add('active-sort');
+      icon.className = existingSortDirection === 'asc'
+        ? 'ti ti-chevron-up'
+        : 'ti ti-chevron-down';
+      icon.classList.remove('sort-icon-inactive');
+    } else {
+      header.classList.remove('active-sort');
+      icon.className = 'ti ti-chevron-up sort-icon-inactive';
+    }
+  });
 }
 
 // ─── Tag Input ────────────────────────────────────────────
@@ -235,134 +407,6 @@ function renderUserItemsList() {
   }
 
   // List rows will go here once we have real user items to show
-}
-
-// ─── Create From Existing ─────────────────────────────────
-
-let selectedExistingItem = null;
-
-function initExistingItems() {
-  selectedExistingItem = null;
-  document.getElementById('copy-item-btn').disabled = true;
-  renderExistingItems();
-}
-
-function renderExistingItems() {
-  const search = document.getElementById('item-search').value.toLowerCase();
-  const typeBtn = document.querySelector('#screen-custom-existing .filter-row:nth-child(2) .filter-btn.active');
-  const rarityBtn = document.querySelector('#screen-custom-existing .filter-row:nth-child(3) .filter-btn.active');
-  const levelMin = parseInt(document.getElementById('level-min').value);
-  const levelMax = parseInt(document.getElementById('level-max').value);
-
-  const typeFilter = typeBtn ? typeBtn.textContent.trim() : 'Any';
-  const rarityFilter = rarityBtn ? rarityBtn.textContent.trim() : 'Any';
-
-  const filtered = state.items.filter(item => {
-    if (search && !item.name.toLowerCase().includes(search)) return false;
-    if (typeFilter !== 'Any' && item.type?.toLowerCase() !== typeFilter.toLowerCase()) return false;
-    if (rarityFilter !== 'Any' && item.rarity?.toLowerCase() !== rarityFilter.toLowerCase()) return false;
-    if (item.level < levelMin || item.level > levelMax) return false;
-    return true;
-  });
-
-  const sorted = [...filtered].sort((a, b) => {
-    let valA = a[existingSortColumn];
-    let valB = b[existingSortColumn];
-
-    if (existingSortColumn === 'price') {
-      valA = (a.price?.gp || 0) * 100 + (a.price?.sp || 0) * 10 + (a.price?.cp || 0);
-      valB = (b.price?.gp || 0) * 100 + (b.price?.sp || 0) * 10 + (b.price?.cp || 0);
-    }
-
-    if (valA === null || valA === undefined) return 1;
-    if (valB === null || valB === undefined) return -1;
-
-    if (typeof valA === 'string') {
-      return existingSortDirection === 'asc'
-        ? valA.localeCompare(valB)
-        : valB.localeCompare(valA);
-    }
-    return existingSortDirection === 'asc' ? valA - valB : valB - valA;
-  });
-
-  const container = document.getElementById('existing-items-list');
-
-  if (filtered.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <i class="ti ti-search"></i>
-        <p>No items found</p>
-        <span>Try adjusting your search or filters</span>
-      </div>`;
-    return;
-  }
-
-  container.innerHTML = sorted.slice(0, 200).map(item => `
-    <div class="list-row" onclick="selectExistingItem(this, '${item.id}')">
-      <span class="col-item-name row-title">${item.name}</span>
-      <span class="col-detail row-meta">${item.type || '—'}</span>
-      <span class="col-level row-meta">${item.level ?? '—'}</span>
-      <span class="col-bulk row-meta">${formatBulk(item.bulk)}</span>
-      <span class="col-price row-meta">${formatPrice(item.price)}</span>
-      <span class="col-rarity">
-        <span class="badge ${badgeClass(item.rarity)}">${item.rarity || '—'}</span>
-      </span>
-    </div>
-  `).join('');
-}
-
-function selectExistingItem(row, itemId) {
-  document.querySelectorAll('#existing-items-list .list-row').forEach(r => {
-    r.classList.remove('selected');
-    r.querySelector('.col-item-name').style.color = '';
-  });
-  row.classList.add('selected');
-  row.querySelector('.col-item-name').style.color = '#5B7F95';
-  selectedExistingItem = state.items.find(i => i.id === itemId);
-  document.getElementById('copy-item-btn').disabled = false;
-}
-
-function formatPrice(price) {
-  if (!price) return '—';
-  if (typeof price === 'string') return price;
-  const parts = [];
-  if (price.gp) parts.push(`${price.gp} gp`);
-  if (price.sp) parts.push(`${price.sp} sp`);
-  if (price.cp) parts.push(`${price.cp} cp`);
-  return parts.join(' · ') || '—';
-}
-
-
-// ---- Sort function ---------------------------------------
-
-function sortExistingItems(column) {
-  if (existingSortColumn === column) {
-    existingSortDirection = existingSortDirection === 'asc' ? 'desc' : 'asc';
-  } else {
-    existingSortColumn = column;
-    existingSortDirection = 'asc';
-  }
-  updateSortHeaders();
-  renderExistingItems();
-}
-
-function updateSortHeaders() {
-  const columns = ['name', 'type', 'level', 'bulk', 'price', 'rarity'];
-  columns.forEach(col => {
-    const icon = document.getElementById(`sort-icon-${col}`);
-    const header = icon?.parentElement;
-    if (!icon || !header) return;
-    if (col === existingSortColumn) {
-      header.classList.add('active-sort');
-      icon.className = existingSortDirection === 'asc'
-        ? 'ti ti-chevron-up'
-        : 'ti ti-chevron-down';
-      icon.classList.remove('sort-icon-inactive');
-    } else {
-      header.classList.remove('active-sort');
-      icon.className = 'ti ti-chevron-up sort-icon-inactive';
-    }
-  });
 }
 
 // ─── Start the app ────────────────────────────────────────

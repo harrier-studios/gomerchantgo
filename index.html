@@ -103,7 +103,7 @@
           <label class="field-label">
             Merchant name <span class="field-optional">optional</span>
           </label>
-          <input type="text" class="field-input" placeholder="Leave blank for unnamed merchant" />
+          <input type="text" class="field-input" id="merchant-name-input" placeholder="Leave blank for unnamed merchant" />
         </div>
       </div>
 
@@ -112,7 +112,7 @@
         <div class="field-grid">
           <div class="field-group">
             <label class="field-label">Settlement size</label>
-            <select class="field-select">
+            <select class="field-select" id="settlement-select">
               <option>Village</option>
               <option>Town</option>
               <option selected>City</option>
@@ -121,7 +121,7 @@
           </div>
           <div class="field-group">
             <label class="field-label">Economy</label>
-            <select class="field-select">
+            <select class="field-select" id="economy-select">
               <option>Frontier</option>
               <option selected>Trade Hub</option>
               <option>Academic</option>
@@ -136,7 +136,7 @@
         <div class="field-grid">
           <div class="field-group">
             <label class="field-label">Race</label>
-            <select class="field-select">
+            <select class="field-select" id="race-select">
               <option selected>Any</option>
               <option>Dwarf</option>
               <option>Elf</option>
@@ -147,7 +147,7 @@
           </div>
           <div class="field-group">
             <label class="field-label">Store type</label>
-            <select class="field-select">
+            <select class="field-select" id="store-type-select">
               <option selected>Any</option>
               <option>Blacksmith</option>
               <option>Alchemist</option>
@@ -157,7 +157,7 @@
           </div>
           <div class="field-group field-group-full">
             <label class="field-label">Stocking style</label>
-            <select class="field-select">
+            <select class="field-select" id="stocking-style-select">
               <option>Broad — wide variety of items</option>
               <option selected>Focused — specialises in one area</option>
               <option>Curated — few high quality items</option>
@@ -342,11 +342,11 @@
     <div class="field-grid">
       <div class="field-group field-group-full">
         <label class="field-label">Name</label>
-        <input type="text" class="field-input" placeholder="e.g. Grimtooth's Gutting Knife" />
+        <input type="text" class="field-input" id="item-name-input" placeholder="e.g. Grimtooth's Gutting Knife" />
       </div>
       <div class="field-group">
         <label class="field-label">Type</label>
-        <select class="field-select">
+        <select class="field-select" id="item-type-select">
           <option value="">Select type…</option>
           <option>Weapon</option>
           <option>Armor</option>
@@ -360,7 +360,7 @@
       </div>
       <div class="field-group">
         <label class="field-label">Category</label>
-        <select class="field-select">
+        <select class="field-select" id="item-category-select">
           <option value="">Select category…</option>
           <option>Simple Weapon</option>
           <option>Martial Weapon</option>
@@ -371,6 +371,7 @@
           <option>Potion</option>
           <option>Scroll</option>
           <option>Wand</option>
+          <option>Gadget</option>
           <option>Other</option>
         </select>
       </div>
@@ -382,11 +383,11 @@
     <div class="field-grid">
       <div class="field-group">
         <label class="field-label">Level</label>
-        <input type="text" class="field-input" placeholder="0" />
+        <input type="text" class="field-input" id="item-level-input" placeholder="0" />
       </div>
       <div class="field-group">
         <label class="field-label">Rarity</label>
-        <select class="field-select">
+        <select class="field-select" id="item-rarity-select">
           <option>Common</option>
           <option>Uncommon</option>
           <option>Rare</option>
@@ -395,11 +396,11 @@
       </div>
       <div class="field-group">
         <label class="field-label">Price</label>
-        <input type="text" class="field-input" placeholder="e.g. 5 gp, 3 sp" />
+        <input type="text" class="field-input" id="item-price-input" placeholder="e.g. 5 gp, 3 sp" />
       </div>
       <div class="field-group">
         <label class="field-label">Bulk</label>
-        <input type="text" class="field-input" placeholder="e.g. 1, L, —" />
+        <input type="text" class="field-input" id="item-bulk-input" placeholder="e.g. 1, L, —" />
       </div>
     </div>
   </div>
@@ -417,13 +418,13 @@
         <label class="field-label">
           Source <span class="field-optional">optional</span>
         </label>
-        <input type="text" class="field-input" placeholder="e.g. Homebrew, Campaign name…" />
+        <input type="text" class="field-input" id="item-source-input" placeholder="e.g. Homebrew, Campaign name…" />
       </div>
       <div class="field-group">
         <label class="field-label">
           Description <span class="field-optional">optional</span>
         </label>
-        <textarea class="field-input field-textarea" placeholder="Item description, special properties, GM notes…"></textarea>
+        <textarea class="field-input field-textarea" id="item-description-input" placeholder="Item description, special properties, GM notes…"></textarea>
       </div>
     </div>
   </div>
@@ -436,7 +437,7 @@
       <h1>Create From Existing</h1>
       <p class="screen-subtitle">Select an item to copy and modify</p>
     </div>
-    <button class="btn-primary" id="copy-item-btn" disabled>
+    <button class="btn-primary" id="copy-item-btn" disabled onclick="copyExistingItem()">
       <i class="ti ti-copy"></i> Copy Item
     </button>
   </div>
@@ -475,26 +476,26 @@
   </div>
 
   <div class="list-container">
-<div class="list-header" id="existing-items-header">
-  <span class="col-item-name sortable active-sort" onclick="sortExistingItems('name')">
-    Name <i class="ti ti-chevron-up" id="sort-icon-name"></i>
-  </span>
-  <span class="col-detail sortable" onclick="sortExistingItems('type')">
-    Type <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-type"></i>
-  </span>
-  <span class="col-level sortable" onclick="sortExistingItems('level')">
-    Level <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-level"></i>
-  </span>
-  <span class="col-bulk sortable" onclick="sortExistingItems('bulk')">
-    Bulk <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-bulk"></i>
-  </span>
-  <span class="col-price sortable" onclick="sortExistingItems('price')">
-    Price <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-price"></i>
-  </span>
-  <span class="col-rarity sortable" onclick="sortExistingItems('rarity')">
-    Rarity <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-rarity"></i>
-  </span>
-</div>
+    <div class="list-header" id="existing-items-header">
+      <span class="col-item-name sortable active-sort" onclick="sortExistingItems('name')">
+        Name <i class="ti ti-chevron-up" id="sort-icon-name"></i>
+      </span>
+      <span class="col-detail sortable" onclick="sortExistingItems('type')">
+        Type <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-type"></i>
+      </span>
+      <span class="col-level sortable" onclick="sortExistingItems('level')">
+        Level <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-level"></i>
+      </span>
+      <span class="col-bulk sortable" onclick="sortExistingItems('bulk')">
+        Bulk <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-bulk"></i>
+      </span>
+      <span class="col-price sortable" onclick="sortExistingItems('price')">
+        Price <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-price"></i>
+      </span>
+      <span class="col-rarity sortable" onclick="sortExistingItems('rarity')">
+        Rarity <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-rarity"></i>
+      </span>
+    </div>
     <div id="existing-items-list">
       <div class="empty-state">
         <i class="ti ti-database"></i>
@@ -532,7 +533,7 @@
 
   <div class="form-card">
     <p class="form-section-title">Defaults</p>
-    <p style="font-size: 12px; color: #6B7280; margin-bottom: 1.25rem;"></p>These values pre-fill the generator form. You can still change them per merchant.</p>
+    <p style="font-size: 12px; color: #6B7280; margin-bottom: 1.25rem;">These values pre-fill the generator form. You can still change them per merchant.</p>
     <div class="field-grid" style="margin-bottom: 16px;">
       <div class="field-group">
         <label class="field-label">Settlement size</label>
