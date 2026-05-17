@@ -14,6 +14,10 @@ const navStack = [];
 let existingSortColumn = 'name';
 let existingSortDirection = 'asc';
 
+// Variables for Store Types filtering by item type and item traits.
+
+
+
 // ─── Utilities ────────────────────────────────────────────
 
 function generateId() {
@@ -605,13 +609,13 @@ const STORE_TAGS = {
 };
 
 const STORE_TYPES = {
-  'any':          { type: null,   traits: [] },
-  'blacksmith':   { type: null,   traits: ['weapon', 'armor', 'shield'] },
-  'bowyer':       { type: 'ammo', traits: ['bow', 'crossbow', 'ranged'] },
-  'alchemist':    { type: null,   traits: ['alchemical', 'bomb', 'poison', 'elixir', 'mutagen'] },
-  'arcane-goods': { type: null,   traits: ['magical', 'arcane', 'scroll', 'wand', 'staff'] },
-  'divine-goods': { type: null,   traits: ['divine', 'holy', 'unholy', 'healing'] },
-  'general-store':{ type: null,   traits: ['adventuring-gear', 'tool'] }
+  'any':          { types: [],                        traits: [] },
+  'blacksmith':   { types: ['weapon', 'armor', 'shield'], traits: [] },
+  'bowyer':       { types: ['ammo'],                  traits: ['bow', 'crossbow', 'ranged'] },
+  'alchemist':    { types: ['consumable'],             traits: ['alchemical', 'bomb', 'poison', 'elixir', 'mutagen'] },
+  'arcane-goods': { types: [],                        traits: ['magical', 'arcane', 'scroll', 'wand', 'staff'] },
+  'divine-goods': { types: [],                        traits: ['divine', 'holy', 'unholy', 'healing'] },
+  'general-store':{ types: ['equipment', 'consumable'], traits: [] }
 };
 
 const STOCKING_STYLE = {
@@ -645,13 +649,13 @@ function generateMerchant() {
     if (item.level > maxLevel) return false;
     if (!allowedRarities.includes(item.rarity?.toLowerCase())) return false;
 
-    // Store type filter
-    if (storeConfig.traits.length > 0) {
-      const itemTraits = item.traits || [];
-      const hasStoreTrait = storeConfig.traits.some(t => itemTraits.includes(t));
-      const hasStoreType = storeConfig.type ? item.type === storeConfig.type : false;
-      if (!hasStoreTrait && !hasStoreType) return false;
-    }
+  // Store type filter
+  if (storeConfig.types.length > 0 || storeConfig.traits.length > 0) {
+    const itemTraits = item.traits || [];
+    const hasType = storeConfig.types.length > 0 && storeConfig.types.includes(item.type);
+    const hasTrait = storeConfig.traits.length > 0 && storeConfig.traits.some(t => itemTraits.includes(t));
+    if (!hasType && !hasTrait) return false;
+  }
 
     // Ancestry filter
     if (ancestry && ancestry !== 'any') {
