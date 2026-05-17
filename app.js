@@ -409,6 +409,75 @@ function copyPath() {
   });
 }
 
+// ─── Settings ─────────────────────────────────────────────
+
+const DEFAULT_SETTINGS = {
+  settlementSize: 'city',
+  economy: 'trade-hub',
+  ancestry: 'any',
+  storeType: 'any',
+  stockingStyle: 'focused',
+  arcaneTilt: 20,
+  pricingModifier: 0,
+  rarity: ['common', 'uncommon']
+};
+
+function loadSettings() {
+  return loadFromStorage('settings') || DEFAULT_SETTINGS;
+}
+
+function saveSettings() {
+  const settings = {
+    settlementSize: document.getElementById('settlement-select').value,
+    economy: document.getElementById('economy-select').value,
+    ancestry: document.getElementById('ancestry-select').value,
+    storeType: document.getElementById('store-type-select').value,
+    stockingStyle: document.getElementById('stocking-style-select').value,
+    arcaneTilt: parseInt(document.getElementById('default-arcane-slider').value),
+    pricingModifier: parseInt(document.getElementById('default-price-slider').value),
+    rarity: ['common', 'uncommon', 'rare', 'unique'].filter((r, i) =>
+      document.querySelectorAll('#screen-settings .checkbox-group input[type="checkbox"]')[i]?.checked
+    )
+  };
+  saveToStorage('settings', settings);
+
+  const btn = document.getElementById('save-settings-btn');
+  btn.innerHTML = '<i class="ti ti-check"></i> Saved';
+  setTimeout(() => {
+    btn.innerHTML = '<i class="ti ti-device-floppy"></i> Save Defaults';
+  }, 1500);
+}
+
+function applySettingsToForm(settings) {
+  document.getElementById('settlement-select').value = settings.settlementSize;
+  document.getElementById('economy-select').value = settings.economy;
+  document.getElementById('ancestry-select').value = settings.ancestry;
+  document.getElementById('store-type-select').value = settings.storeType;
+  document.getElementById('stocking-style-select').value = settings.stockingStyle;
+
+  // Arcane tilt slider
+  const arcaneSlider = document.querySelector('#screen-merchant-new input[type="range"]:nth-of-type(1)');
+  if (arcaneSlider) {
+    arcaneSlider.value = settings.arcaneTilt;
+    document.getElementById('arcane-display').textContent = settings.arcaneTilt + '%';
+  }
+
+  // Pricing modifier slider
+  const priceSlider = document.querySelector('#screen-merchant-new input[type="range"]:nth-of-type(2)');
+  if (priceSlider) {
+    priceSlider.value = settings.pricingModifier;
+    const v = settings.pricingModifier;
+    document.getElementById('price-display').textContent = (v > 0 ? '+' : '') + v + '%';
+  }
+
+  // Rarity checkboxes
+  const rarities = ['common', 'uncommon', 'rare', 'unique'];
+  document.querySelectorAll('#screen-merchant-new .checkbox-group input[type="checkbox"]')
+    .forEach((cb, i) => {
+      cb.checked = settings.rarity.includes(rarities[i]);
+    });
+}
+
 // ---- Helps stop older browsers from firing const 
 // every time the slider is moved.
 
@@ -979,4 +1048,10 @@ function renderInventory(inventory) {
 
 // ─── Start the app ────────────────────────────────────────
 
-init();
+async function init() {
+  await loadItems();
+  await loadAncestries();
+  loadMerchants();
+  loadUserItems();
+  applySettingsToForm(loadSettings());
+}

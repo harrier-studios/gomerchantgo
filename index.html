@@ -513,12 +513,15 @@
 
 <!-- ─── Settings ─────────────────────────────────────── -->
 <div id="screen-settings" class="screen">
-  <div class="screen-header">
-    <div>
-      <h1>Settings</h1>
-      <p class="screen-subtitle">App preferences and data management</p>
-    </div>
+<div class="screen-header">
+  <div>
+    <h1>Settings</h1>
+    <p class="screen-subtitle">App preferences and data management</p>
   </div>
+  <button class="btn-primary" id="save-settings-btn" onclick="saveSettings()">
+    <i class="ti ti-device-floppy"></i> Save Defaults
+  </button>
+</div>
 
   <div class="form-card">
     <p class="form-section-title">Appearance</p>
@@ -594,16 +597,18 @@
         <label class="field-label slider-label">
           Arcane tilt <span class="slider-value" id="default-arcane-display">20%</span>
         </label>
-        <input type="range" class="slider" min="0" max="100" value="20" step="1"
-          oninput="document.getElementById('default-arcane-display').textContent = this.value + '%'" />
+          <input type="range" class="slider" min="0" max="100" value="20" step="1"
+            id="default-arcane-slider"
+            oninput="document.getElementById('default-arcane-display').textContent = this.value + '%'" />
       </div>
 
       <div class="slider-group">
         <label class="field-label slider-label">
           Pricing modifier <span class="slider-value" id="default-price-display">+0%</span>
         </label>
-        <input type="range" class="slider" min="-50" max="50" value="0" step="1"
-          oninput="formatPriceModifier(this.value, 'default-price-display')" />
+          <input type="range" class="slider" min="-50" max="50" value="0" step="1"
+            id="default-price-slider"
+            oninput="formatPriceModifier(this.value, 'default-price-display')" />
       </div>
 
       <div class="field-group">
