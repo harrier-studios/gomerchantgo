@@ -3,7 +3,9 @@
 const state = {
   items: [],
   merchants: [],
-  userItems: []
+  userItems: [],
+  ancestries: [],
+  currentMerchant: null
 };
 
 const navStack = [];
@@ -156,6 +158,29 @@ function setFilterActive(btn, group) {
   const groupBtns = Array.from(allBtns).filter(b => b.getAttribute('onclick').includes(group));
   groupBtns.forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+}
+
+// ─── Save Merchant ────────────────────────────────────────
+
+function saveMerchant() {
+  if (!state.currentMerchant) return;
+
+  const existing = state.merchants.findIndex(m => m.id === state.currentMerchant.id);
+  if (existing >= 0) {
+    state.merchants[existing] = state.currentMerchant;
+  } else {
+    state.merchants.push(state.currentMerchant);
+  }
+
+  saveMerchants();
+  renderMerchantsList();
+
+  // Visual feedback on the button
+  const btn = document.querySelector('#screen-merchant-result .btn-secondary');
+  btn.innerHTML = '<i class="ti ti-check"></i> Saved';
+  setTimeout(() => {
+    btn.innerHTML = '<i class="ti ti-device-floppy"></i> Save';
+  }, 1500);
 }
 
 // ─── Create From Existing ─────────────────────────────────
