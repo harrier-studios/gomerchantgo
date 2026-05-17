@@ -18,10 +18,10 @@
 
   <div id="app">
 
-      <!-- ─── Back Button ───────────────────────────────────── -->
-  <button id="back-btn" onclick="goBack()" style="display: none;">
-    <i class="ti ti-arrow-left"></i> Back
-  </button>
+    <!-- ─── Back Button ───────────────────────────────────── -->
+    <button id="back-btn" onclick="goBack()" style="display: none;">
+      <i class="ti ti-arrow-left"></i> Back
+    </button>
 
     <!-- ─── Home ─────────────────────────────────────────── -->
     <div id="screen-home" class="screen active">
@@ -68,7 +68,6 @@
         </button>
       </div>
     </div> <!-- end screen-home -->
-    
 
     <!-- ─── Merchants List ────────────────────────────────── -->
     <div id="screen-merchants" class="screen">
@@ -98,9 +97,9 @@
           <h1>New Merchant</h1>
           <p class="screen-subtitle">Set parameters and generate</p>
         </div>
-          <button class="btn-primary" onclick="generateMerchant()">
-            <i class="ti ti-wand"></i> Generate
-          </button>
+        <button class="btn-primary" onclick="generateMerchant()">
+          <i class="ti ti-wand"></i> Generate
+        </button>
       </div>
 
       <div class="form-card">
@@ -139,15 +138,15 @@
         </div>
       </div>
 
-<div class="form-card">
-  <p class="form-section-title">Merchant</p>
-  <div class="field-grid">
-    <div class="field-group">
-      <label class="field-label">Ancestry</label>
-      <select class="field-select" id="ancestry-select">
-        <option value="any" selected>Any</option>
-      </select>
-    </div>
+      <div class="form-card">
+        <p class="form-section-title">Merchant</p>
+        <div class="field-grid">
+          <div class="field-group">
+            <label class="field-label">Ancestry</label>
+            <select class="field-select" id="ancestry-select">
+              <option value="any" selected>Any</option>
+            </select>
+          </div>
           <div class="field-group">
             <label class="field-label">Store type</label>
             <select class="field-select" id="store-type-select">
@@ -166,7 +165,7 @@
               <option value="broad">Broad — wide variety of items</option>
               <option value="curated">Curated — few high quality items</option>
               <option value="focused" selected>Focused — specialises in one area</option>
-             </select> 
+            </select>
           </div>
         </div>
       </div>
@@ -188,7 +187,7 @@
               Pricing modifier <span class="slider-value" id="price-display">+0%</span>
             </label>
             <input type="range" class="slider" min="-50" max="50" value="0" step="1"
-              oninput="formatPriceModifier(this.value, 'price-display')"/>
+              oninput="formatPriceModifier(this.value, 'price-display')" />
           </div>
 
           <div class="field-group">
@@ -241,9 +240,9 @@
           <p class="screen-subtitle" id="result-subtitle">—</p>
         </div>
         <div class="header-actions">
-            <button class="btn-secondary" onclick="saveMerchant()">
-              <i class="ti ti-device-floppy"></i> Save
-            </button>
+          <button class="btn-secondary" onclick="saveMerchant()">
+            <i class="ti ti-device-floppy"></i> Save
+          </button>
           <button class="btn-primary" onclick="regenerateMerchant()">
             <i class="ti ti-refresh"></i> Regenerate
           </button>
@@ -330,405 +329,404 @@
       </div>
     </div> <!-- end screen-custom-data -->
 
-<!-- ─── Custom Data New Item ──────────────────────────── -->
-<div id="screen-custom-new" class="screen">
-  <div class="screen-header">
-    <div>
-      <h1>New Item</h1>
-      <p class="screen-subtitle">Create a homebrew item</p>
-    </div>
-<button class="btn-primary" onclick="saveUserItem()">
-  <i class="ti ti-device-floppy"></i> Save Item
-</button>
-  </div>
-
-  <div class="form-card">
-    <p class="form-section-title">Item</p>
-    <div class="field-grid">
-      <div class="field-group field-group-full">
-        <label class="field-label">Name</label>
-        <input type="text" class="field-input" id="item-name-input" placeholder="e.g. Grimtooth's Gutting Knife" />
-      </div>
-      <div class="field-group">
-        <label class="field-label">Type</label>
-        <select class="field-select" id="item-type-select">
-          <option value="">Select type…</option>
-          <option>Weapon</option>
-          <option>Armor</option>
-          <option>Shield</option>
-          <option>Consumable</option>
-          <option>Worn Item</option>
-          <option>Held Item</option>
-          <option>Adventuring Gear</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="field-group">
-        <label class="field-label">Category</label>
-        <select class="field-select" id="item-category-select">
-          <option value="">Select category…</option>
-          <option>Simple Weapon</option>
-          <option>Martial Weapon</option>
-          <option>Advanced Weapon</option>
-          <option>Light Armor</option>
-          <option>Medium Armor</option>
-          <option>Heavy Armor</option>
-          <option>Potion</option>
-          <option>Scroll</option>
-          <option>Wand</option>
-          <option>Gadget</option>
-          <option>Other</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <div class="form-card">
-    <p class="form-section-title">Stats</p>
-    <div class="field-grid">
-      <div class="field-group">
-        <label class="field-label">Level</label>
-        <input type="text" class="field-input" id="item-level-input" placeholder="0" />
-      </div>
-      <div class="field-group">
-        <label class="field-label">Rarity</label>
-        <select class="field-select" id="item-rarity-select">
-          <option>Common</option>
-          <option>Uncommon</option>
-          <option>Rare</option>
-          <option>Unique</option>
-        </select>
-      </div>
-      <div class="field-group">
-        <label class="field-label">Price</label>
-        <input type="text" class="field-input" id="item-price-input" placeholder="e.g. 5 gp, 3 sp" />
-      </div>
-      <div class="field-group">
-        <label class="field-label">Bulk</label>
-        <input type="text" class="field-input" id="item-bulk-input" placeholder="e.g. 1, L, —" />
-      </div>
-    </div>
-  </div>
-
-  <div class="form-card">
-    <p class="form-section-title">Details</p>
-    <div style="display: flex; flex-direction: column; gap: 12px;">
-      <div class="field-group">
-        <label class="field-label">Traits</label>
-        <div class="tag-input-wrapper" id="traits-wrapper" onclick="this.querySelector('.tag-input').focus()">
-          <input class="tag-input" type="text" placeholder="Type a trait and press Enter…" onkeydown="addTag(event, this)" />
+    <!-- ─── Custom Data New Item ──────────────────────────── -->
+    <div id="screen-custom-new" class="screen">
+      <div class="screen-header">
+        <div>
+          <h1>New Item</h1>
+          <p class="screen-subtitle">Create a homebrew item</p>
         </div>
-      </div>
-      <div class="field-group">
-        <label class="field-label">
-          Source <span class="field-optional">optional</span>
-        </label>
-        <input type="text" class="field-input" id="item-source-input" placeholder="e.g. Homebrew, Campaign name…" />
-      </div>
-      <div class="field-group">
-        <label class="field-label">
-          Description <span class="field-optional">optional</span>
-        </label>
-        <textarea class="field-input field-textarea" id="item-description-input" placeholder="Item description, special properties, GM notes…"></textarea>
-      </div>
-    </div>
-  </div>
-</div> <!-- end screen-custom-new -->
-
-<!-- ─── Custom Data From Existing ────────────────────── -->
-<div id="screen-custom-existing" class="screen">
-  <div class="screen-header">
-    <div>
-      <h1>Create From Existing</h1>
-      <p class="screen-subtitle">Select an item to copy and modify</p>
-    </div>
-    <button class="btn-primary" id="copy-item-btn" disabled onclick="copyExistingItem()">
-      <i class="ti ti-copy"></i> Copy Item
-    </button>
-  </div>
-
-  <div class="form-card" style="margin-bottom: 12px;">
-    <div class="search-row">
-      <input type="text" class="field-input search-input" placeholder="Search items…" id="item-search" oninput="filterItems()" />
-    </div>
-    <div class="filter-row">
-      <span class="filter-label">Type</span>
-      <button class="filter-btn active" onclick="setSearchFilter(this, 'type')">Any</button>
-      <button class="filter-btn" onclick="setSearchFilter(this, 'type')">Weapon</button>
-      <button class="filter-btn" onclick="setSearchFilter(this, 'type')">Armor</button>
-      <button class="filter-btn" onclick="setSearchFilter(this, 'type')">Consumable</button>
-      <button class="filter-btn" onclick="setSearchFilter(this, 'type')">Worn</button>
-      <button class="filter-btn" onclick="setSearchFilter(this, 'type')">Shield</button>
-    </div>
-    <div class="filter-row">
-      <span class="filter-label">Rarity</span>
-      <button class="filter-btn active" onclick="setSearchFilter(this, 'rarity')">Any</button>
-      <button class="filter-btn" onclick="setSearchFilter(this, 'rarity')">Common</button>
-      <button class="filter-btn" onclick="setSearchFilter(this, 'rarity')">Uncommon</button>
-      <button class="filter-btn" onclick="setSearchFilter(this, 'rarity')">Rare</button>
-      <button class="filter-btn" onclick="setSearchFilter(this, 'rarity')">Unique</button>
-    </div>
-    <div class="filter-row">
-      <span class="filter-label">Level</span>
-      <input type="range" class="slider" min="0" max="20" value="0" step="1"
-        oninput="updateLevelRange(this, 'level-min-val')" id="level-min" style="accent-color: #5B7F95;" />
-      <input type="range" class="slider" min="0" max="20" value="20" step="1"
-        oninput="updateLevelRange(this, 'level-max-val')" id="level-max" style="accent-color: #5B7F95;" />
-      <span class="slider-value" style="min-width: 48px; text-align: right;">
-        <span id="level-min-val">0</span>–<span id="level-max-val">20</span>
-      </span>
-    </div>
-  </div>
-
-  <div class="list-container">
-    <div class="list-header" id="existing-items-header">
-      <span class="col-item-name sortable active-sort" onclick="sortExistingItems('name')">
-        Name <i class="ti ti-chevron-up" id="sort-icon-name"></i>
-      </span>
-      <span class="col-detail sortable" onclick="sortExistingItems('type')">
-        Type <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-type"></i>
-      </span>
-      <span class="col-level sortable" onclick="sortExistingItems('level')">
-        Level <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-level"></i>
-      </span>
-      <span class="col-bulk sortable" onclick="sortExistingItems('bulk')">
-        Bulk <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-bulk"></i>
-      </span>
-      <span class="col-price sortable" onclick="sortExistingItems('price')">
-        Price <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-price"></i>
-      </span>
-      <span class="col-rarity sortable" onclick="sortExistingItems('rarity')">
-        Rarity <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-rarity"></i>
-      </span>
-    </div>
-    <div id="existing-items-list">
-      <div class="empty-state">
-        <i class="ti ti-database"></i>
-        <p>No items loaded</p>
-        <span>items.json will populate this list</span>
-      </div>
-    </div>
-  </div>
-</div> <!-- end screen-custom-existing -->
-
-<!-- ─── Settings ─────────────────────────────────────── -->
-<div id="screen-settings" class="screen">
-<div class="screen-header">
-  <div>
-    <h1>Settings</h1>
-    <p class="screen-subtitle">App preferences and data management</p>
-  </div>
-  <button class="btn-primary" id="save-settings-btn" onclick="saveSettings()">
-    <i class="ti ti-device-floppy"></i> Save Defaults
-  </button>
-</div>
-
-  <div class="form-card">
-    <p class="form-section-title">Appearance</p>
-    <p class="field-label" style="margin-bottom: 10px;">Theme</p>
-    <div class="theme-btn-group">
-      <button class="theme-btn" onclick="setTheme(this, 'light')">
-        <i class="ti ti-sun"></i> Light
-      </button>
-      <button class="theme-btn active" onclick="setTheme(this, 'system')">
-        <i class="ti ti-device-desktop"></i> System
-      </button>
-      <button class="theme-btn" onclick="setTheme(this, 'dark')">
-        <i class="ti ti-moon"></i> Dark
-      </button>
-    </div>
-  </div>
-
-  <div class="form-card">
-    <p class="form-section-title">Defaults</p>
-    <p style="font-size: 12px; color: #6B7280; margin-bottom: 1.25rem;">These values pre-fill the generator form. You can still change them per merchant.</p>
-    <div class="field-grid" style="margin-bottom: 16px;">
-      <div class="field-group">
-        <label class="field-label">Settlement size</label>
-        <select class="field-select">
-          <option>Village</option>
-          <option>Town</option>
-          <option selected>City</option>
-          <option>Metropolis</option>
-        </select>
-      </div>
-      <div class="field-group">
-        <label class="field-label">Economy</label>
-        <select class="field-select">
-          <option>Frontier</option>
-          <option selected>Trade Hub</option>
-          <option>Academic</option>
-          <option>Military</option>
-        </select>
-      </div>
-      <div class="field-group">
-        <label class="field-label">Merchant race</label>
-        <select class="field-select">
-          <option selected>Any</option>
-          <option>Dwarf</option>
-          <option>Elf</option>
-          <option>Gnome</option>
-          <option>Human</option>
-          <option>Halfling</option>
-        </select>
-      </div>
-      <div class="field-group">
-        <label class="field-label">Store type</label>
-        <select class="field-select">
-          <option selected>Any</option>
-          <option>Blacksmith</option>
-          <option>Alchemist</option>
-          <option>Arcane Goods</option>
-          <option>General Store</option>
-        </select>
-      </div>
-      <div class="field-group field-group-full">
-        <label class="field-label">Stocking style</label>
-        <select class="field-select">
-          <option>Broad — wide variety of items</option>
-          <option selected>Focused — specialises in one area</option>
-          <option>Curated — few high quality items</option>
-        </select>
-      </div>
-    </div>
-
-    <div style="display: flex; flex-direction: column; gap: 16px;">
-      <div class="slider-group">
-        <label class="field-label slider-label">
-          Arcane tilt <span class="slider-value" id="default-arcane-display">20%</span>
-        </label>
-          <input type="range" class="slider" min="0" max="100" value="20" step="1"
-            id="default-arcane-slider"
-            oninput="document.getElementById('default-arcane-display').textContent = this.value + '%'" />
-      </div>
-
-      <div class="slider-group">
-        <label class="field-label slider-label">
-          Pricing modifier <span class="slider-value" id="default-price-display">+0%</span>
-        </label>
-          <input type="range" class="slider" min="-50" max="50" value="0" step="1"
-            id="default-price-slider"
-            oninput="formatPriceModifier(this.value, 'default-price-display')" />
-      </div>
-
-      <div class="field-group">
-        <label class="field-label">Rarity</label>
-        <div class="checkbox-group">
-          <label class="checkbox-label">
-            <input type="checkbox" checked /> Common
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" checked /> Uncommon
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" /> Rare
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" /> Unique
-          </label>
-        </div>
-      </div>
-
-      <div class="filters-section">
-        <button class="filters-toggle" onclick="toggleDefaultFilters()">
-          <i class="ti ti-chevron-right" id="default-filters-icon"></i>
-          <span class="form-section-title" style="margin: 0;">Filters</span>
-          <span class="filters-sub">— default include / exclude tags</span>
+        <button class="btn-primary" onclick="saveUserItem()">
+          <i class="ti ti-device-floppy"></i> Save Item
         </button>
-        <div class="filters-body" id="default-filters-body">
-          <div class="field-grid" style="margin-top: 1rem;">
-            <div class="field-group">
-              <label class="field-label">Include tags</label>
-              <input type="text" class="field-input" placeholder="e.g. sword, fire…" />
+      </div>
+
+      <div class="form-card">
+        <p class="form-section-title">Item</p>
+        <div class="field-grid">
+          <div class="field-group field-group-full">
+            <label class="field-label">Name</label>
+            <input type="text" class="field-input" id="item-name-input" placeholder="e.g. Grimtooth's Gutting Knife" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Type</label>
+            <select class="field-select" id="item-type-select">
+              <option value="">Select type…</option>
+              <option>Weapon</option>
+              <option>Armor</option>
+              <option>Shield</option>
+              <option>Consumable</option>
+              <option>Worn Item</option>
+              <option>Held Item</option>
+              <option>Adventuring Gear</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Category</label>
+            <select class="field-select" id="item-category-select">
+              <option value="">Select category…</option>
+              <option>Advanced Weapon</option>
+              <option>Gadget</option>
+              <option>Heavy Armor</option>
+              <option>Light Armor</option>
+              <option>Martial Weapon</option>
+              <option>Medium Armor</option>
+              <option>Other</option>
+              <option>Potion</option>
+              <option>Scroll</option>
+              <option>Simple Weapon</option>
+              <option>Wand</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <p class="form-section-title">Stats</p>
+        <div class="field-grid">
+          <div class="field-group">
+            <label class="field-label">Level</label>
+            <input type="text" class="field-input" id="item-level-input" placeholder="0" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Rarity</label>
+            <select class="field-select" id="item-rarity-select">
+              <option>Common</option>
+              <option>Uncommon</option>
+              <option>Rare</option>
+              <option>Unique</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Price</label>
+            <input type="text" class="field-input" id="item-price-input" placeholder="e.g. 5 gp, 3 sp" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Bulk</label>
+            <input type="text" class="field-input" id="item-bulk-input" placeholder="e.g. 1, L, —" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <p class="form-section-title">Details</p>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="field-group">
+            <label class="field-label">Traits</label>
+            <div class="tag-input-wrapper" id="traits-wrapper" onclick="this.querySelector('.tag-input').focus()">
+              <input class="tag-input" type="text" placeholder="Type a trait and press Enter…" onkeydown="addTag(event, this)" />
             </div>
-            <div class="field-group">
-              <label class="field-label">Exclude tags</label>
-              <input type="text" class="field-input" placeholder="e.g. cursed, artifact…" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">
+              Source <span class="field-optional">optional</span>
+            </label>
+            <input type="text" class="field-input" id="item-source-input" placeholder="e.g. Homebrew, Campaign name…" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">
+              Description <span class="field-optional">optional</span>
+            </label>
+            <textarea class="field-input field-textarea" id="item-description-input" placeholder="Item description, special properties, GM notes…"></textarea>
+          </div>
+        </div>
+      </div>
+    </div> <!-- end screen-custom-new -->
+
+    <!-- ─── Custom Data From Existing ────────────────────── -->
+    <div id="screen-custom-existing" class="screen">
+      <div class="screen-header">
+        <div>
+          <h1>Create From Existing</h1>
+          <p class="screen-subtitle">Select an item to copy and modify</p>
+        </div>
+        <button class="btn-primary" id="copy-item-btn" disabled onclick="copyExistingItem()">
+          <i class="ti ti-copy"></i> Copy Item
+        </button>
+      </div>
+
+      <div class="form-card" style="margin-bottom: 12px;">
+        <div class="search-row">
+          <input type="text" class="field-input search-input" placeholder="Search items…" id="item-search" oninput="filterItems()" />
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">Type</span>
+          <button class="filter-btn active" onclick="setSearchFilter(this, 'type')">Any</button>
+          <button class="filter-btn" onclick="setSearchFilter(this, 'type')">Weapon</button>
+          <button class="filter-btn" onclick="setSearchFilter(this, 'type')">Armor</button>
+          <button class="filter-btn" onclick="setSearchFilter(this, 'type')">Consumable</button>
+          <button class="filter-btn" onclick="setSearchFilter(this, 'type')">Worn</button>
+          <button class="filter-btn" onclick="setSearchFilter(this, 'type')">Shield</button>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">Rarity</span>
+          <button class="filter-btn active" onclick="setSearchFilter(this, 'rarity')">Any</button>
+          <button class="filter-btn" onclick="setSearchFilter(this, 'rarity')">Common</button>
+          <button class="filter-btn" onclick="setSearchFilter(this, 'rarity')">Uncommon</button>
+          <button class="filter-btn" onclick="setSearchFilter(this, 'rarity')">Rare</button>
+          <button class="filter-btn" onclick="setSearchFilter(this, 'rarity')">Unique</button>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">Level</span>
+          <input type="range" class="slider" min="0" max="20" value="0" step="1"
+            oninput="updateLevelRange(this, 'level-min-val')" id="level-min" style="accent-color: #5B7F95;" />
+          <input type="range" class="slider" min="0" max="20" value="20" step="1"
+            oninput="updateLevelRange(this, 'level-max-val')" id="level-max" style="accent-color: #5B7F95;" />
+          <span class="slider-value" style="min-width: 48px; text-align: right;">
+            <span id="level-min-val">0</span>–<span id="level-max-val">20</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="list-container">
+        <div class="list-header" id="existing-items-header">
+          <span class="col-item-name sortable active-sort" onclick="sortExistingItems('name')">
+            Name <i class="ti ti-chevron-up" id="sort-icon-name"></i>
+          </span>
+          <span class="col-detail sortable" onclick="sortExistingItems('type')">
+            Type <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-type"></i>
+          </span>
+          <span class="col-level sortable" onclick="sortExistingItems('level')">
+            Level <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-level"></i>
+          </span>
+          <span class="col-bulk sortable" onclick="sortExistingItems('bulk')">
+            Bulk <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-bulk"></i>
+          </span>
+          <span class="col-price sortable" onclick="sortExistingItems('price')">
+            Price <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-price"></i>
+          </span>
+          <span class="col-rarity sortable" onclick="sortExistingItems('rarity')">
+            Rarity <i class="ti ti-chevron-up sort-icon-inactive" id="sort-icon-rarity"></i>
+          </span>
+        </div>
+        <div id="existing-items-list">
+          <div class="empty-state">
+            <i class="ti ti-database"></i>
+            <p>No items loaded</p>
+            <span>items.json will populate this list</span>
+          </div>
+        </div>
+      </div>
+    </div> <!-- end screen-custom-existing -->
+
+    <!-- ─── Settings ─────────────────────────────────────── -->
+    <div id="screen-settings" class="screen">
+      <div class="screen-header">
+        <div>
+          <h1>Settings</h1>
+          <p class="screen-subtitle">App preferences and data management</p>
+        </div>
+        <button class="btn-primary" id="save-settings-btn" onclick="saveSettings()">
+          <i class="ti ti-device-floppy"></i> Save Defaults
+        </button>
+      </div>
+
+      <div class="form-card">
+        <p class="form-section-title">Appearance</p>
+        <p class="field-label" style="margin-bottom: 10px;">Theme</p>
+        <div class="theme-btn-group">
+          <button class="theme-btn" onclick="setTheme(this, 'light')">
+            <i class="ti ti-sun"></i> Light
+          </button>
+          <button class="theme-btn active" onclick="setTheme(this, 'system')">
+            <i class="ti ti-device-desktop"></i> System
+          </button>
+          <button class="theme-btn" onclick="setTheme(this, 'dark')">
+            <i class="ti ti-moon"></i> Dark
+          </button>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <p class="form-section-title">Defaults</p>
+        <p style="font-size: 12px; color: #6B7280; margin-bottom: 1.25rem;">These values pre-fill the generator form. You can still change them per merchant.</p>
+        <div class="field-grid" style="margin-bottom: 16px;">
+          <div class="field-group">
+            <label class="field-label">Settlement size</label>
+            <select class="field-select" id="default-settlement-select">
+              <option value="city" selected>City</option>
+              <option value="metropolis">Metropolis</option>
+              <option value="town">Town</option>
+              <option value="village">Village</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Economy</label>
+            <select class="field-select" id="default-economy-select">
+              <option value="trade-hub" selected>Trade Hub</option>
+              <option value="academic">Academic</option>
+              <option value="arcane">Arcane</option>
+              <option value="divine">Divine</option>
+              <option value="frontier">Frontier</option>
+              <option value="military">Military</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Ancestry</label>
+            <select class="field-select" id="default-ancestry-select">
+              <option value="any" selected>Any</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Store type</label>
+            <select class="field-select" id="default-store-type-select">
+              <option value="any" selected>Any</option>
+              <option value="alchemist">Alchemist</option>
+              <option value="arcane-goods">Arcane Goods</option>
+              <option value="blacksmith">Blacksmith</option>
+              <option value="bowyer">Bowyer</option>
+              <option value="divine-goods">Divine Goods</option>
+              <option value="general-store">General Store</option>
+            </select>
+          </div>
+          <div class="field-group field-group-full">
+            <label class="field-label">Stocking style</label>
+            <select class="field-select" id="default-stocking-style-select">
+              <option value="broad">Broad — wide variety of items</option>
+              <option value="curated">Curated — few high quality items</option>
+              <option value="focused" selected>Focused — specialises in one area</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div class="slider-group">
+            <label class="field-label slider-label">
+              Arcane tilt <span class="slider-value" id="default-arcane-display">20%</span>
+            </label>
+            <input type="range" class="slider" min="0" max="100" value="20" step="1"
+              id="default-arcane-slider"
+              oninput="document.getElementById('default-arcane-display').textContent = this.value + '%'" />
+          </div>
+
+          <div class="slider-group">
+            <label class="field-label slider-label">
+              Pricing modifier <span class="slider-value" id="default-price-display">+0%</span>
+            </label>
+            <input type="range" class="slider" min="-50" max="50" value="0" step="1"
+              id="default-price-slider"
+              oninput="formatPriceModifier(this.value, 'default-price-display')" />
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Rarity</label>
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" checked /> Common
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" checked /> Uncommon
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" /> Rare
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" /> Unique
+              </label>
+            </div>
+          </div>
+
+          <div class="filters-section">
+            <button class="filters-toggle" onclick="toggleDefaultFilters()">
+              <i class="ti ti-chevron-right" id="default-filters-icon"></i>
+              <span class="form-section-title" style="margin: 0;">Filters</span>
+              <span class="filters-sub">— default include / exclude tags</span>
+            </button>
+            <div class="filters-body" id="default-filters-body">
+              <div class="field-grid" style="margin-top: 1rem;">
+                <div class="field-group">
+                  <label class="field-label">Include tags</label>
+                  <input type="text" class="field-input" placeholder="e.g. sword, fire…" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label">Exclude tags</label>
+                  <input type="text" class="field-input" placeholder="e.g. cursed, artifact…" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <div class="form-card">
-    <p class="form-section-title">Data</p>
+      <div class="form-card">
+        <p class="form-section-title">Data</p>
 
-    <div class="settings-row">
-      <div class="settings-row-text">
-        <p class="settings-row-title">Update item database</p>
-        <p class="settings-row-sub">Download the latest items.json from GitHub</p>
-      </div>
-      <button class="btn-primary">
-        <i class="ti ti-download"></i> Update
-      </button>
-    </div>
-
-    <div class="settings-row">
-      <div class="settings-row-text">
-        <p class="settings-row-title">Export merchants</p>
-        <p class="settings-row-sub">Share or back up your saved merchants</p>
-      </div>
-      <button class="btn-data">
-        <i class="ti ti-upload"></i> Export
-      </button>
-    </div>
-
-    <div class="settings-row">
-      <div class="settings-row-text">
-        <p class="settings-row-title">Import merchants</p>
-        <p class="settings-row-sub">Load merchants shared by another GM</p>
-      </div>
-      <button class="btn-data">
-        <i class="ti ti-download"></i> Import
-      </button>
-    </div>
-
-    <div class="settings-row">
-      <div class="settings-row-text">
-        <p class="settings-row-title">Export custom data</p>
-        <p class="settings-row-sub">Share or back up your homebrew items</p>
-      </div>
-      <button class="btn-data">
-        <i class="ti ti-upload"></i> Export
-      </button>
-    </div>
-
-    <div class="settings-row">
-      <div class="settings-row-text">
-        <p class="settings-row-title">Import custom data</p>
-        <p class="settings-row-sub">Load homebrew items shared by another GM</p>
-      </div>
-      <button class="btn-data">
-        <i class="ti ti-download"></i> Import
-      </button>
-    </div>
-
-    <div class="settings-row">
-      <div class="settings-row-text">
-        <p class="settings-row-title">Browse local files</p>
-        <p class="settings-row-sub">Your merchants, custom items, and settings are stored here. You can edit or back up these files directly.</p>
-        <div class="path-row">
-          <span class="path-display" id="data-path">~/merchants/data</span>
-          <button class="btn-copy" onclick="copyPath()">
-            <i class="ti ti-copy"></i> Copy
+        <div class="settings-row">
+          <div class="settings-row-text">
+            <p class="settings-row-title">Update item database</p>
+            <p class="settings-row-sub">Download the latest items.json from GitHub</p>
+          </div>
+          <button class="btn-primary">
+            <i class="ti ti-download"></i> Update
           </button>
         </div>
-      </div>
-    </div>
 
-    <div class="settings-row settings-row-danger">
-      <div class="settings-row-text">
-        <p class="settings-row-title danger-text">Reset all data</p>
-        <p class="settings-row-sub">Permanently delete all merchants and custom items</p>
-      </div>
-      <button class="btn-danger">
-        <i class="ti ti-trash"></i> Reset
-      </button>
-    </div>
+        <div class="settings-row">
+          <div class="settings-row-text">
+            <p class="settings-row-title">Export merchants</p>
+            <p class="settings-row-sub">Share or back up your saved merchants</p>
+          </div>
+          <button class="btn-data" onclick="exportData('merchants')">
+            <i class="ti ti-upload"></i> Export
+          </button>
+        </div>
 
-  </div>
-</div> <!-- end screen-settings -->
+        <div class="settings-row">
+          <div class="settings-row-text">
+            <p class="settings-row-title">Import merchants</p>
+            <p class="settings-row-sub">Load merchants shared by another GM</p>
+          </div>
+          <button class="btn-data" onclick="importData('merchants')">
+            <i class="ti ti-download"></i> Import
+          </button>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-text">
+            <p class="settings-row-title">Export custom data</p>
+            <p class="settings-row-sub">Share or back up your homebrew items</p>
+          </div>
+          <button class="btn-data" onclick="exportData('userItems')">
+            <i class="ti ti-upload"></i> Export
+          </button>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-text">
+            <p class="settings-row-title">Import custom data</p>
+            <p class="settings-row-sub">Load homebrew items shared by another GM</p>
+          </div>
+          <button class="btn-data" onclick="importData('userItems')">
+            <i class="ti ti-download"></i> Import
+          </button>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-text">
+            <p class="settings-row-title">Browse local files</p>
+            <p class="settings-row-sub">Your merchants, custom items, and settings are stored here. You can edit or back up these files directly.</p>
+            <div class="path-row">
+              <span class="path-display" id="data-path">~/merchants/data</span>
+              <button class="btn-copy" onclick="copyPath()">
+                <i class="ti ti-copy"></i> Copy
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-row settings-row-danger">
+          <div class="settings-row-text">
+            <p class="settings-row-title danger-text">Reset all data</p>
+            <p class="settings-row-sub">Permanently delete all merchants and custom items</p>
+          </div>
+          <button class="btn-danger" onclick="resetAllData()">
+            <i class="ti ti-trash"></i> Reset
+          </button>
+        </div>
+
+      </div>
+    </div> <!-- end screen-settings -->
 
   </div> <!-- end app -->
 
