@@ -394,7 +394,7 @@ function saveUserItems() {
 function renderUserItemsList() {
   const container = document.getElementById('custom-list');
   const count = document.getElementById('custom-count');
-  count.textContent = `${state.userItems.length} items`;
+  count.textContent = `${state.userItems.length} item${state.userItems.length !== 1 ? 's' : ''}`;
 
   if (state.userItems.length === 0) {
     container.innerHTML = `
@@ -406,8 +406,94 @@ function renderUserItemsList() {
     return;
   }
 
-  // List rows will go here once we have real user items to show
+  container.innerHTML = `
+    <div class="list-header">
+      <span class="col-item-name">Name</span>
+      <span class="col-detail">Type</span>
+      <span class="col-level">Level</span>
+      <span class="col-bulk">Bulk</span>
+      <span class="col-price">Price</span>
+      <span class="col-rarity">Rarity</span>
+    </div>
+    ${state.userItems.map(item => `
+      <div class="list-row" onclick="editUserItem('${item.id}')">
+        <span class="col-item-name row-title">
+          ${item.name}
+          ${item.sourceId ? '<i class="ti ti-tool" style="font-size: 12px; color: #5B7F95; margin-left: 4px;" title="Modified from existing item"></i>' : ''}
+        </span>
+        <span class="col-detail row-meta">${item.type || '—'}</span>
+        <span class="col-level row-meta">${item.level ?? '—'}</span>
+        <span class="col-bulk row-meta">${formatBulk(item.bulk)}</span>
+        <span class="col-price row-meta">${typeof item.price === 'string' ? item.price : formatPrice(item.price)}</span>
+        <span class="col-rarity"><span class="badge ${badgeClass(item.rarity)}">${item.rarity || '—'}</span></span>
+      </div>
+    `).join('')}
+  `;
 }
+
+// Allows user editing of rows
+function editUserItem(id) {
+  const item = state.userItems.find(i => i.id === id);
+  if (!item) return;
+  openItemForm(item);
+}
+
+// ─── Save User Item ───────────────────────────────────────
+
+function saveUserItem() {
+  const name = document.getElementById('item-name-input').value.trim();
+  if (!name) {
+    alert('Please enter a name for the item.');
+    return;
+  }
+
+  const traits = Array.from(document.querySelectorAll('#traits-wrapper .tag'))
+    .map(tag => tag.textContent.trim().replace('×', '').trim());
+
+  const item = {
+    id: currentEditItem?.id || generateId(),
+    sourceId: currentEditItem?.sourceId || null,
+    name,
+    type: document.getElementById('item-type-select').value,
+    category: document.getElementById('item-category-select').value,
+    level: parseInt(document.getElementById('item-level-input').value) || 0,
+    rarity: document.getElementById('item-rarity-select').value.toLowerCase(),
+    price: document.getElementById('item-price-input').value.trim() || null,
+    bulk: document.getElementById('item-bulk-input').value.trim() || null,
+    traits,
+    source: document.getElementById('item-source-input').value.trim(),
+    description: document.getElementById('item-description-input').value.trim()
+  };
+
+  // Update existing or add new
+  const existingIndex = state.userItems.findIndex(i => i.id === item.id);
+  if (existingIndex >= 0) {
+    state.userItems[existingIndex] = item;
+  } else {
+    state.userItems.push(item);
+  }
+
+  saveUserItems();
+  renderUserItemsList();
+  clearItemForm();
+  showScreen('screen-custom-data');
+}
+
+function clearItemForm() {
+  document.getElementById('item-name-input').value = '';
+  document.getElementById('item-type-select').value = '';
+  document.getElementById('item-category-select').value = '';
+  document.getElementById('item-level-input').value = '';
+  document.getElementById('item-rarity-select').value = 'Common';
+  document.getElementById('item-price-input').value = '';
+  document.getElementById('item-bulk-input').value = '';
+  document.getElementById('item-source-input').value = '';
+  document.getElementById('item-description-input').value = '';
+  const wrapper = document.getElementById('traits-wrapper');
+  wrapper.querySelectorAll('.tag').forEach(t => t.remove());
+  currentEditItem = null;
+}
+
 
 // ─── Start the app ────────────────────────────────────────
 
