@@ -68,6 +68,7 @@
         </button>
       </div>
     </div> <!-- end screen-home -->
+    
 
     <!-- ─── Merchants List ────────────────────────────────── -->
     <div id="screen-merchants" class="screen">
@@ -97,9 +98,9 @@
           <h1>New Merchant</h1>
           <p class="screen-subtitle">Set parameters and generate</p>
         </div>
-        <button class="btn-primary" onclick="showScreen('screen-merchant-result')">
-          <i class="ti ti-wand"></i> Generate
-        </button>
+          <button class="btn-primary" onclick="generateMerchant()">
+            <i class="ti ti-wand"></i> Generate
+          </button>
       </div>
 
       <div class="form-card">
@@ -155,7 +156,6 @@
               <option value="arcane-goods">Arcane Goods</option>
               <option value="blacksmith">Blacksmith</option>
               <option value="bowyer">Bowyer</option>
-              <option value="clothier">Clothier</option>
               <option value="divine-goods">Divine Goods</option>
               <option value="general-store">General Store</option>
             </select>

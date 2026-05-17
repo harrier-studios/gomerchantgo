@@ -551,6 +551,284 @@ function clearItemForm() {
   currentEditItem = null;
 }
 
+// ─── Generator Config ─────────────────────────────────────
+
+const SETTLEMENT_LEVEL = {
+  'village': 4,
+  'town': 8,
+  'city': 14,
+  'metropolis': 20
+};
+
+const ECONOMY_CONFIG = {
+  'frontier':  { multiplier: 0.5,  levelBias: 'low',     categoryBias: [] },
+  'military':  { multiplier: 0.75, levelBias: 'mid',     categoryBias: ['weapon', 'armor'] },
+  'trade-hub': { multiplier: 1,    levelBias: 'none',    categoryBias: [] },
+  'academic':  { multiplier: 0.75, levelBias: 'mid',     categoryBias: ['scroll', 'alchemical', 'tool'] },
+  'arcane':    { multiplier: 0.9,  levelBias: 'mid-high', categoryBias: ['magical', 'arcane', 'scroll', 'wand'] },
+  'divine':    { multiplier: 0.9,  levelBias: 'mid',     categoryBias: ['divine', 'holy', 'healing'] }
+};
+
+const STORE_TAGS = {
+  'any':          [],
+  'blacksmith':   ['weapon', 'armor', 'shield'],
+  'bowyer':       ['bow', 'crossbow', 'ranged'],
+  'alchemist':    ['alchemical', 'bomb', 'poison', 'elixir', 'mutagen'],
+  'arcane-goods': ['magical', 'arcane', 'scroll', 'wand', 'staff'],
+  'divine-goods': ['divine', 'holy', 'unholy', 'healing'],
+  'general-store':['adventuring-gear', 'tool', 'light']
+};
+
+const STORE_TYPES = {
+  'any':          { type: null,   traits: [] },
+  'blacksmith':   { type: null,   traits: ['weapon', 'armor', 'shield'] },
+  'bowyer':       { type: 'ammo', traits: ['bow', 'crossbow', 'ranged'] },
+  'alchemist':    { type: null,   traits: ['alchemical', 'bomb', 'poison', 'elixir', 'mutagen'] },
+  'arcane-goods': { type: null,   traits: ['magical', 'arcane', 'scroll', 'wand', 'staff'] },
+  'divine-goods': { type: null,   traits: ['divine', 'holy', 'unholy', 'healing'] },
+  'general-store':{ type: null,   traits: ['adventuring-gear', 'tool'] }
+};
+
+const STOCKING_STYLE = {
+  'broad':   { min: 25, max: 35, adjacent: true },
+  'focused': { min: 12, max: 18, adjacent: false },
+  'curated': { min: 5,  max: 8,  adjacent: false, highLevelBias: true }
+};
+
+// ─── Merchant Generator ───────────────────────────────────
+
+function generateMerchant() {
+  const name = document.getElementById('merchant-name-input').value.trim();
+  const settlement = document.getElementById('settlement-select').value;
+  const economy = document.getElementById('economy-select').value;
+  const ancestry = document.getElementById('ancestry-select').value;
+  const storeType = document.getElementById('store-type-select').value;
+  const stockingStyle = document.getElementById('stocking-style-select').value;
+  const arcaneTilt = parseInt(document.getElementById('arcane-display').textContent) / 100;
+  const pricingModifier = parseInt(document.getElementById('price-display').textContent) / 100;
+
+  const rarityCheckboxes = document.querySelectorAll('#screen-merchant-new .checkbox-group input[type="checkbox"]');
+  const allowedRarities = ['common', 'uncommon', 'rare', 'unique'].filter((r, i) => rarityCheckboxes[i]?.checked);
+
+  const maxLevel = SETTLEMENT_LEVEL[settlement] || 14;
+  const economyConfig = ECONOMY_CONFIG[economy] || ECONOMY_CONFIG['trade-hub'];
+  const storeConfig = STORE_TYPES[storeType] || STORE_TYPES['any'];
+  const styleConfig = STOCKING_STYLE[stockingStyle] || STOCKING_STYLE['focused'];
+
+  // Step 1 — filter eligible items
+  let pool = state.items.filter(item => {
+    if (item.level > maxLevel) return false;
+    if (!allowedRarities.includes(item.rarity?.toLowerCase())) return false;
+
+    // Store type filter
+    if (storeConfig.traits.length > 0) {
+      const itemTraits = item.traits || [];
+      const hasStoreTrait = storeConfig.traits.some(t => itemTraits.includes(t));
+      const hasStoreType = storeConfig.type ? item.type === storeConfig.type : false;
+      if (!hasStoreTrait && !hasStoreType) return false;
+    }
+
+    // Ancestry filter
+    if (ancestry && ancestry !== 'any') {
+      const itemTraits = item.traits || [];
+      if (!itemTraits.includes(ancestry)) return false;
+    }
+
+    return true;
+  });
+
+  if (pool.length === 0) {
+    alert('No items match these parameters. Try adjusting your filters.');
+    return;
+  }
+
+  // Step 2 — assign weights
+  pool = pool.map(item => {
+    let weight = 1;
+
+    // Level bias
+    weight *= getLevelWeight(item.level, maxLevel, economyConfig.levelBias, styleConfig.highLevelBias);
+
+    // Arcane tilt
+    const isMagical = (item.traits || []).some(t => ['magical', 'arcane', 'divine'].includes(t));
+    if (isMagical) weight *= (1 + arcaneTilt * 2);
+    else weight *= (1 + (1 - arcaneTilt) * 0.5);
+
+    // Economy category bias
+    if (economyConfig.categoryBias.length > 0) {
+      const itemTraits = item.traits || [];
+      const hasBias = economyConfig.categoryBias.some(t => itemTraits.includes(t));
+      if (hasBias) weight *= 1.5;
+    }
+
+    return { ...item, weight };
+  });
+
+  // Step 3 — pick items by weighted random
+  const baseCount = Math.floor(
+    (styleConfig.min + Math.random() * (styleConfig.max - styleConfig.min))
+    * economyConfig.multiplier
+  );
+  const count = Math.max(3, baseCount);
+  const selected = weightedSample(pool, count);
+
+  // Step 4 — assign quantities
+  const inventory = selected.map(item => ({
+    id: item.id,
+    quantity: generateQuantity(item, economy, storeType)
+  }));
+
+  // Step 5 — build merchant object
+  const merchant = {
+    id: generateId(),
+    name: name || null,
+    currency: generateCurrency(settlement, economy),
+    inventory,
+    generatorSettings: {
+      settlementSize: settlement,
+      economy,
+      ancestry,
+      storeType,
+      stockingStyle,
+      arcaneTilt,
+      pricingModifier,
+      rarity: allowedRarities
+    }
+  };
+
+  displayMerchantResult(merchant);
+}
+
+function getLevelWeight(itemLevel, maxLevel, levelBias, highLevelBias) {
+  const ratio = itemLevel / maxLevel;
+  if (highLevelBias) return 0.5 + ratio;
+  switch (levelBias) {
+    case 'low':      return Math.max(0.1, 1 - ratio * 1.5);
+    case 'mid':      return 1 - Math.abs(ratio - 0.5);
+    case 'mid-high': return 0.3 + ratio * 0.7;
+    case 'none':
+    default:         return 1;
+  }
+}
+
+function weightedSample(pool, count) {
+  const results = [];
+  const available = [...pool];
+  const totalWeight = available.reduce((sum, i) => sum + i.weight, 0);
+
+  for (let n = 0; n < count && available.length > 0; n++) {
+    let rand = Math.random() * available.reduce((sum, i) => sum + i.weight, 0);
+    for (let i = 0; i < available.length; i++) {
+      rand -= available[i].weight;
+      if (rand <= 0) {
+        results.push(available[i]);
+        available.splice(i, 1);
+        break;
+      }
+    }
+  }
+  return results;
+}
+
+function generateQuantity(item, economy, storeType) {
+  const isCommon = item.rarity?.toLowerCase() === 'common';
+  const isConsumable = ['consumable', 'ammo'].includes(item.type);
+  const isFrontier = economy === 'frontier';
+
+  if (item.rarity?.toLowerCase() === 'unique') return 1;
+  if (item.rarity?.toLowerCase() === 'rare') return 1;
+
+  let base = isConsumable ? Math.floor(Math.random() * 8) + 3
+           : isCommon     ? Math.floor(Math.random() * 3) + 1
+           :                1;
+
+  if (isFrontier) base = Math.max(1, Math.floor(base * 0.5));
+  return base;
+}
+
+function generateCurrency(settlement, economy) {
+  const base = { 'village': 50, 'town': 200, 'city': 800, 'metropolis': 3000 };
+  const multiplier = { 'frontier': 0.5, 'military': 0.8, 'trade-hub': 1, 'academic': 0.9, 'arcane': 1.1, 'divine': 0.9 };
+  const gp = Math.floor((base[settlement] || 200) * (multiplier[economy] || 1) * (0.8 + Math.random() * 0.4));
+  return { gp, sp: Math.floor(Math.random() * 10), cp: Math.floor(Math.random() * 10) };
+}
+
+function displayMerchantResult(merchant) {
+  // Store current merchant
+  state.currentMerchant = merchant;
+
+  // Header
+  document.getElementById('result-name').textContent = merchant.name || 'Unnamed Merchant';
+  const settings = merchant.generatorSettings;
+  document.getElementById('result-subtitle').textContent = [
+    settings.ancestry !== 'any' ? capitalise(settings.ancestry) : null,
+    capitalise(settings.storeType.replace('-', ' ')),
+    capitalise(settings.settlementSize),
+    capitalise(settings.economy.replace('-', ' '))
+  ].filter(Boolean).join(' · ');
+
+  // Stat blocks
+  const currency = merchant.currency;
+  document.getElementById('result-currency').textContent =
+    [currency.gp ? `${currency.gp} gp` : null,
+     currency.sp ? `${currency.sp} sp` : null,
+     currency.cp ? `${currency.cp} cp` : null]
+    .filter(Boolean).join(' · ') || '—';
+
+  document.getElementById('result-item-count').textContent = merchant.inventory.length;
+  document.getElementById('result-rarity').textContent =
+    settings.rarity.map(capitalise).join(' · ');
+
+  // Max level
+  document.getElementById('result-max-level').textContent =
+    SETTLEMENT_LEVEL[settings.settlementSize] || '—';
+
+  // Inventory
+  renderInventory(merchant.inventory);
+
+  // Navigate to result screen
+  showScreen('screen-merchant-result');
+}
+
+function renderInventory(inventory) {
+  const container = document.getElementById('result-inventory');
+
+  if (inventory.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <i class="ti ti-wand"></i>
+        <p>No inventory yet</p>
+        <span>Hit Generate to stock this merchant</span>
+      </div>`;
+    return;
+  }
+
+  // Group by category
+  const groups = {};
+  inventory.forEach(({ id, quantity }) => {
+    const item = state.items.find(i => i.id === id);
+    if (!item) return;
+    const category = item.category || item.type || 'Other';
+    if (!groups[category]) groups[category] = [];
+    groups[category].push({ ...item, quantity });
+  });
+
+  container.innerHTML = Object.entries(groups)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([category, items]) => `
+      <p class="category-heading">${capitalise(category)}</p>
+      ${items.sort((a, b) => a.level - b.level).map(item => `
+        <div class="list-row">
+          <span class="col-item-name row-title">${item.name}</span>
+          <span class="col-qty row-meta">${item.quantity}</span>
+          <span class="col-level row-meta">${item.level ?? '—'}</span>
+          <span class="col-bulk row-meta">${formatBulk(item.bulk)}</span>
+          <span class="col-price row-meta">${formatPrice(item.price)}</span>
+          <span class="col-rarity"><span class="badge ${badgeClass(item.rarity)}">${capitalise(item.rarity) || '—'}</span></span>
+        </div>
+      `).join('')}
+    `).join('');
+}
 
 // ─── Start the app ────────────────────────────────────────
 
