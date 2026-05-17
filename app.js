@@ -59,6 +59,7 @@ async function init() {
   loadMerchants();
   loadUserItems();
   applySettingsToForm(loadSettings());
+  initTheme();
 }
 
 async function loadItems() {
@@ -725,7 +726,7 @@ const DEFAULT_SETTINGS = {
   storeType: 'any',
   stockingStyle: 'focused',
   arcaneTilt: 20,
-  pricingModifier: 0,
+  pricingModifier: 0, // this is modified in index.html. Current range is -75% to +100%
   rarity: ['common', 'uncommon']
 };
 
@@ -822,9 +823,9 @@ function applySettingsToForm(settings) {
 }
 
 function setTheme(btn, theme) {
-  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  // Theme switching logic will go here
+  applyTheme(theme);
+  saveToStorage('theme', theme);
+  updateSettingsThemeBtn(theme);
 }
 
 function toggleDefaultFilters() {
@@ -1141,6 +1142,45 @@ function deleteUserItem(e, id) {
   state.userItems = state.userItems.filter(i => i.id !== id);
   saveUserItems();
   renderUserItemsList();
+}
+
+// ─── Theme ────────────────────────────────────────────────
+
+function initTheme() {
+  const saved = loadFromStorage('theme') || 'system';
+  applyTheme(saved);
+  updateSettingsThemeBtn(saved);
+}
+
+function cycleTheme() {
+  const current = loadFromStorage('theme') || 'system';
+  const next = current === 'system' ? 'light' : current === 'light' ? 'dark' : 'system';
+  applyTheme(next);
+  saveToStorage('theme', next);
+  updateSettingsThemeBtn(next);
+}
+
+function applyTheme(theme) {
+  const app = document.getElementById('app');
+  const root = document.documentElement;
+  app.classList.remove('theme-light', 'theme-dark');
+  root.classList.remove('theme-light', 'theme-dark');
+  if (theme === 'light') {
+    app.classList.add('theme-light');
+    root.classList.add('theme-light');
+  }
+  if (theme === 'dark') {
+    app.classList.add('theme-dark');
+    root.classList.add('theme-dark');
+  }
+}
+
+function updateSettingsThemeBtn(theme) {
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+  const btns = document.querySelectorAll('.theme-btn');
+  if (theme === 'light') btns[0]?.classList.add('active');
+  if (theme === 'system') btns[1]?.classList.add('active');
+  if (theme === 'dark') btns[2]?.classList.add('active');
 }
 
 // ─── Start the app ────────────────────────────────────────
