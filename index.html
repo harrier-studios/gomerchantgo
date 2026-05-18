@@ -18,11 +18,6 @@
 
   <div id="app">
 
-    <!-- ─── Back Button ───────────────────────────────────── -->
-    <button id="back-btn" onclick="goBack()" style="display: none;">
-      <i class="ti ti-arrow-left"></i> Back
-    </button>
-
     <!-- ─── Home ─────────────────────────────────────────── -->
     <div id="screen-home" class="screen active">
       <div class="home-header">
@@ -72,13 +67,20 @@
     <!-- ─── Merchants List ────────────────────────────────── -->
     <div id="screen-merchants" class="screen">
       <div class="screen-header">
-        <div>
+        <div class="screen-header-left">
+          <button id="back-btn-merchants" class="back-btn" onclick="goBack()">
+            <i class="ti ti-arrow-left"></i> Back
+          </button>
+        </div>
+        <div class="screen-header-title">
           <h1>Merchants</h1>
           <p class="screen-subtitle" id="merchants-count">0 saved</p>
         </div>
-        <button class="btn-primary" onclick="showScreen('screen-merchant-new')">
-          <i class="ti ti-plus"></i> New Merchant
-        </button>
+        <div class="screen-header-right">
+          <button class="btn-primary" onclick="showScreen('screen-merchant-new')">
+            <i class="ti ti-plus"></i> New Merchant
+          </button>
+        </div>
       </div>
 
       <div class="list-container" id="merchants-list">
@@ -93,13 +95,20 @@
     <!-- ─── New Merchant Form ─────────────────────────────── -->
     <div id="screen-merchant-new" class="screen">
       <div class="screen-header">
-        <div>
+        <div class="screen-header-left">
+          <button class="back-btn" onclick="goBack()">
+            <i class="ti ti-arrow-left"></i> Back
+          </button>
+        </div>
+        <div class="screen-header-title">
           <h1>New Merchant</h1>
           <p class="screen-subtitle">Set parameters and generate</p>
         </div>
-        <button class="btn-primary" onclick="generateMerchant()">
-          <i class="ti ti-wand"></i> Generate
-        </button>
+        <div class="screen-header-right">
+          <button class="btn-primary" onclick="generateMerchant()">
+            <i class="ti ti-wand"></i> Generate
+          </button>
+        </div>
       </div>
 
       <div class="form-card">
@@ -186,7 +195,7 @@
             <label class="field-label slider-label">
               Pricing modifier <span class="slider-value" id="price-display">+0%</span>
             </label>
-            <input type="range" class="slider" min="-75" max="100" value="0" step="1"
+            <input type="range" class="slider" min="-50" max="100" value="0" step="1"
               oninput="formatPriceModifier(this.value, 'price-display')" />
           </div>
 
@@ -235,17 +244,24 @@
     <!-- ─── Merchant Result ───────────────────────────────── -->
     <div id="screen-merchant-result" class="screen">
       <div class="screen-header">
-        <div>
+        <div class="screen-header-left">
+          <button class="back-btn" onclick="goBack()">
+            <i class="ti ti-arrow-left"></i> Back
+          </button>
+        </div>
+        <div class="screen-header-title">
           <h1 id="result-name">Unnamed Merchant</h1>
           <p class="screen-subtitle" id="result-subtitle">—</p>
         </div>
-        <div class="header-actions">
-          <button class="btn-secondary" onclick="saveMerchant()">
-            <i class="ti ti-device-floppy"></i> Save
-          </button>
-          <button class="btn-primary" onclick="regenerateMerchant()">
-            <i class="ti ti-refresh"></i> Regenerate
-          </button>
+        <div class="screen-header-right">
+          <div class="header-actions">
+            <button class="btn-secondary" onclick="saveMerchant()">
+              <i class="ti ti-device-floppy"></i> Save
+            </button>
+            <button class="btn-primary" onclick="regenerateMerchant()">
+              <i class="ti ti-refresh"></i> Regenerate
+            </button>
+          </div>
         </div>
       </div>
 
@@ -306,17 +322,24 @@
     <!-- ─── Custom Data List ──────────────────────────────── -->
     <div id="screen-custom-data" class="screen">
       <div class="screen-header">
-        <div>
+        <div class="screen-header-left">
+          <button class="back-btn" onclick="goBack()">
+            <i class="ti ti-arrow-left"></i> Back
+          </button>
+        </div>
+        <div class="screen-header-title">
           <h1>Custom Data</h1>
           <p class="screen-subtitle" id="custom-count">0 items</p>
         </div>
-        <div class="header-actions">
-          <button class="btn-secondary" onclick="showScreen('screen-custom-existing')">
-            <i class="ti ti-copy"></i> Create from Existing
-          </button>
-          <button class="btn-primary" onclick="showScreen('screen-custom-new')">
-            <i class="ti ti-plus"></i> New Item
-          </button>
+        <div class="screen-header-right">
+          <div class="header-actions">
+            <button class="btn-secondary" onclick="showScreen('screen-custom-existing')">
+              <i class="ti ti-copy"></i> Create from Existing
+            </button>
+            <button class="btn-primary" onclick="showScreen('screen-custom-new')">
+              <i class="ti ti-plus"></i> New Item
+            </button>
+          </div>
         </div>
       </div>
 
@@ -332,13 +355,20 @@
     <!-- ─── Custom Data New Item ──────────────────────────── -->
     <div id="screen-custom-new" class="screen">
       <div class="screen-header">
-        <div>
+        <div class="screen-header-left">
+          <button class="back-btn" onclick="goBack()">
+            <i class="ti ti-arrow-left"></i> Back
+          </button>
+        </div>
+        <div class="screen-header-title">
           <h1>New Item</h1>
           <p class="screen-subtitle">Create a homebrew item</p>
         </div>
-        <button class="btn-primary" onclick="saveUserItem()">
-          <i class="ti ti-device-floppy"></i> Save Item
-        </button>
+        <div class="screen-header-right">
+          <button class="btn-primary" onclick="saveUserItem()">
+            <i class="ti ti-device-floppy"></i> Save Item
+          </button>
+        </div>
       </div>
 
       <div class="form-card">
@@ -437,13 +467,20 @@
     <!-- ─── Custom Data From Existing ────────────────────── -->
     <div id="screen-custom-existing" class="screen">
       <div class="screen-header">
-        <div>
+        <div class="screen-header-left">
+          <button class="back-btn" onclick="goBack()">
+            <i class="ti ti-arrow-left"></i> Back
+          </button>
+        </div>
+        <div class="screen-header-title">
           <h1>Create From Existing</h1>
           <p class="screen-subtitle">Select an item to copy and modify</p>
         </div>
-        <button class="btn-primary" id="copy-item-btn" disabled onclick="copyExistingItem()">
-          <i class="ti ti-copy"></i> Copy Item
-        </button>
+        <div class="screen-header-right">
+          <button class="btn-primary" id="copy-item-btn" disabled onclick="copyExistingItem()">
+            <i class="ti ti-copy"></i> Copy Item
+          </button>
+        </div>
       </div>
 
       <div class="form-card" style="margin-bottom: 12px;">
@@ -513,13 +550,20 @@
     <!-- ─── Settings ─────────────────────────────────────── -->
     <div id="screen-settings" class="screen">
       <div class="screen-header">
-        <div>
+        <div class="screen-header-left">
+          <button class="back-btn" onclick="goBack()">
+            <i class="ti ti-arrow-left"></i> Back
+          </button>
+        </div>
+        <div class="screen-header-title">
           <h1>Settings</h1>
           <p class="screen-subtitle">App preferences and data management</p>
         </div>
-        <button class="btn-primary" id="save-settings-btn" onclick="saveSettings()">
-          <i class="ti ti-device-floppy"></i> Save Defaults
-        </button>
+        <div class="screen-header-right">
+          <button class="btn-primary" id="save-settings-btn" onclick="saveSettings()">
+            <i class="ti ti-device-floppy"></i> Save Defaults
+          </button>
+        </div>
       </div>
 
       <div class="form-card">
@@ -540,7 +584,7 @@
 
       <div class="form-card">
         <p class="form-section-title">Defaults</p>
-        <p style="font-size: 12px; color: #6B7280; margin-bottom: 1.25rem;">These values pre-fill the generator form. You can still change them per merchant.</p>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 1.25rem;">These values pre-fill the generator form. You can still change them per merchant.</p>
         <div class="field-grid" style="margin-bottom: 16px;">
           <div class="field-group">
             <label class="field-label">Settlement size</label>
@@ -604,7 +648,7 @@
             <label class="field-label slider-label">
               Pricing modifier <span class="slider-value" id="default-price-display">+0%</span>
             </label>
-            <input type="range" class="slider" min="-75" max="100" value="0" step="1"
+            <input type="range" class="slider" min="-50" max="100" value="0" step="1"
               id="default-price-slider"
               oninput="formatPriceModifier(this.value, 'default-price-display')" />
           </div>
@@ -715,10 +759,10 @@
           </div>
         </div>
 
-        <div class="settings-row settings-row-danger">
+        <div class="settings-row">
           <div class="settings-row-text">
             <p class="settings-row-title danger-text">Reset all data</p>
-            <p class="settings-row-sub">Permanently delete all merchants and custom items</p>
+            <p class="settings-row-sub">Permanently delete all merchants, custom items, and saved settings</p>
           </div>
           <button class="btn-danger" onclick="resetAllData()">
             <i class="ti ti-trash"></i> Reset
