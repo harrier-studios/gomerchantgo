@@ -1,1 +1,9 @@
-dev-tools/ export-ignore
+# ignore dev tools from export
+/dev-tools/ export-ignore
+
+# omit local git files
+**/.gitignore export-ignore
+/.gitattributes export-ignore
+
+# note: do not put comments after a pattern on the same line
+# this will NOT be a comment: /foo/ export-ignore  # comment
