@@ -1114,7 +1114,7 @@ function saveUserItems() {
 function renderUserItemsList() {
   const container = document.getElementById('custom-list');
   const count = document.getElementById('custom-count');
-  count.textContent = `${state.userItems.length} item${state.userItems.length !== 1 ? 's' : ''}`;
+  count.textContent = `${state.userItems.length} item${state.userItems.length !== 1 ? 's' : ''} saved`;
 
   if (state.userItems.length === 0) {
     container.innerHTML = `
