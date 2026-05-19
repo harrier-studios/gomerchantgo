@@ -427,7 +427,7 @@ function sortItems(items) {
 
 function renderItemRow(item) {
   return `
-    <div class="list-row">
+    <div class="list-row grid-inventory">
       <span class="col-item-name row-title">${item.name}</span>
       <span class="col-qty row-meta">${item.quantity}</span>
       <span class="col-level row-meta">${item.level ?? '—'}</span>
@@ -661,7 +661,7 @@ function renderExistingItems() {
   }
 
   container.innerHTML = sorted.slice(0, 200).map(item => `
-    <div class="list-row" onclick="selectExistingItem(this, '${item.id}')">
+    <div class="list-row grid-existing-items" onclick="selectExistingItem(this, '${item.id}')">
       <span class="col-item-name row-title">${item.name}</span>
       <span class="col-detail row-meta">${item.type || '—'}</span>
       <span class="col-level row-meta">${item.level ?? '—'}</span>
@@ -974,13 +974,15 @@ function renderMerchantsList() {
   }
 
   container.innerHTML = `
-    <div class="list-header">
+    <div class="list-header grid-merchants">
       <span class="col-name">Name</span>
       <span class="col-detail">Ancestry</span>
       <span class="col-detail">Type</span>
-      <span class="col-detail-wide">Settlement · Economy</span>
+      <span class="col-detail">Settlement</span>
+      <span class="col-detail">Economy</span>
       <span class="col-detail">Level</span>
       <span class="col-rarity">Rarity</span>
+      <span class="col-action"></span>
     </div>
     ${state.merchants.map(merchant => {
       const s = merchant.generatorSettings;
@@ -993,16 +995,17 @@ function renderMerchantsList() {
       const rarityBadge = s.rarity[0] || 'common';
 
 return `
-  <div class="list-row" onclick="openMerchant('${merchant.id}')">
+  <div class="list-row grid-merchants" onclick="openMerchant('${merchant.id}')">
     <span class="col-name row-title">${merchant.name || '<span class="muted">Unnamed Merchant</span>'}</span>
     <span class="col-detail row-meta">${ancestryDisplay}</span>
     <span class="col-detail row-meta">${storeDisplay}</span>
-    <span class="col-detail-wide row-meta">${settlementDisplay} · ${economyDisplay}</span>
+    <span class="col-detail row-meta">${settlementDisplay}</span>
+    <span class="col-detail row-meta">${economyDisplay}</span>
     <span class="col-detail row-meta">1–${maxLevel}</span>
     <span class="col-rarity"><span class="badge badge-${rarityBadge}">${rarity}</span></span>
-    <button class="btn-delete" onclick="deleteMerchant(event, '${merchant.id}')">
+    <span class="col-action"><button class="btn-delete" onclick="deleteMerchant(event, '${merchant.id}')">
       <i class="ti ti-trash"></i>
-    </button>
+    </button></span>
   </div>
 `;
     }).join('')}
@@ -1036,16 +1039,17 @@ function renderUserItemsList() {
   }
 
   container.innerHTML = `
-    <div class="list-header">
+    <div class="list-header grid-custom-items">
       <span class="col-item-name">Name</span>
       <span class="col-detail">Type</span>
       <span class="col-level">Level</span>
       <span class="col-bulk">Bulk</span>
       <span class="col-price">Price</span>
       <span class="col-rarity">Rarity</span>
+      <span class="col-action"></span>
     </div>
     ${state.userItems.map(item => `
-      <div class="list-row" onclick="editUserItem('${item.id}')">
+      <div class="list-row grid-custom-items" onclick="editUserItem('${item.id}')">
         <span class="col-item-name row-title">
           ${item.name}
           ${item.sourceId ? '<i class="ti ti-tool" style="font-size: 12px; color: #5B7F95; margin-left: 4px;" title="Modified from existing item"></i>' : ''}
@@ -1055,9 +1059,9 @@ function renderUserItemsList() {
         <span class="col-bulk row-meta">${formatBulk(item.bulk)}</span>
         <span class="col-price row-meta">${typeof item.price === 'string' ? item.price : formatPrice(item.price)}</span>
         <span class="col-rarity"><span class="badge ${badgeClass(item.rarity)}">${item.rarity || '—'}</span></span>
-        <button class="btn-delete" onclick="deleteUserItem(event, '${item.id}')">
+        <span class="col-action"><button class="btn-delete" onclick="deleteUserItem(event, '${item.id}')">
           <i class="ti ti-trash"></i>
-        </button>
+        </button></span>
       </div>
     `).join('')}
   `;

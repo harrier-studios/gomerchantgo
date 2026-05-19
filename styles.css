@@ -242,9 +242,9 @@ h1 {
 
 .list-header,
 .list-row {
-  display: flex;
+  display: grid;
   align-items: center;
-  gap: 12px;
+  gap: 0 12px;
 }
 
 .list-header {
@@ -264,14 +264,43 @@ h1 {
 
 .list-row:hover {
   background: var(--bg-hover);
-  margin: 0 -1.25rem;
-  padding: 10px 1.25rem;
+  border-radius: 6px;
 }
 
-/* ─── List Columns — Merchants List ──────────────────────── */
+/* ─── Grid definitions per list ──────────────────────────── */
 
-.col-name {
-  flex: 3;
+/* Merchants list: Name | Ancestry | Type | Settlement | Economy | Level | Rarity | action */
+.grid-merchants {
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 60px 90px 28px;
+}
+
+/* Merchant result inventory: Item | Qty | Level | Bulk | Price | Rarity */
+.grid-inventory {
+  grid-template-columns: 3fr 40px 50px 50px 90px 80px;
+}
+
+/* Custom Items list: Name | Type | Level | Bulk | Price | Rarity | action */
+.grid-custom-items {
+  grid-template-columns: 3fr 1fr 50px 50px 90px 80px 28px;
+}
+
+/* Create From Existing list: Name | Type | Level | Bulk | Price | Rarity */
+.grid-existing-items {
+  grid-template-columns: 3fr 1fr 50px 50px 90px 80px;
+}
+
+/* ─── List Columns — shared typography ───────────────────── */
+
+.col-name,
+.col-detail,
+.col-detail-wide,
+.col-item-name,
+.col-qty,
+.col-level,
+.col-bulk,
+.col-price,
+.col-rarity,
+.col-action {
   font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: 11px;
@@ -282,86 +311,18 @@ h1 {
   min-width: 0;
 }
 
-.col-detail {
-  flex: 1.5;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 11px;
-  color: var(--text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.col-detail-wide {
-  flex: 2;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 11px;
-  color: var(--text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.col-rarity {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-/* ─── List Columns — Inventory List ──────────────────────── */
-
-.col-item-name {
-  flex: 3;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 11px;
-  color: var(--text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;
-}
-
-.col-qty {
-  flex: 0.5;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 11px;
-  color: var(--text-muted);
-  text-align: center;
-}
-
-.col-level {
-  flex: 0.6;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 11px;
-  color: var(--text-muted);
-  text-align: center;
-}
-
+.col-qty,
+.col-level,
 .col-bulk {
-  flex: 0.6;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 11px;
-  color: var(--text-muted);
   text-align: center;
 }
 
 .col-price {
-  flex: 1.2;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 11px;
-  color: var(--text-muted);
   text-align: right;
+}
+
+.col-rarity {
+  white-space: normal;
 }
 
 /* ─── Row Content ─────────────────────────────────────────── */
@@ -377,19 +338,16 @@ h1 {
   font-family: 'Questrial', sans-serif;
   font-size: 13px;
   color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 5px;
 }
 
 .col-qty.row-meta,
 .col-level.row-meta,
 .col-bulk.row-meta {
-  justify-content: center;
+  text-align: center;
 }
 
 .col-price.row-meta {
-  justify-content: flex-end;
+  text-align: right;
 }
 
 .muted {
@@ -989,6 +947,15 @@ h1 {
 
 /* ─── Delete Button ───────────────────────────────────────── */
 
+/* ─── Action Column (delete button slot) ─────────────────── */
+
+.col-action {
+  flex: 0 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 .btn-delete {
   background: none;
   border: none;
@@ -999,7 +966,6 @@ h1 {
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  margin-left: auto;
 }
 
 .btn-delete:hover {
