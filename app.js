@@ -663,7 +663,7 @@ function renderExistingItems() {
   container.innerHTML = sorted.slice(0, 200).map(item => `
     <div class="list-row grid-existing-items" onclick="selectExistingItem(this, '${item.id}')">
       <span class="col-item-name row-title">${item.name}</span>
-      <span class="col-detail row-meta">${item.type || '—'}</span>
+      <span class="col-detail row-meta">${capitalise(item.type) || '—'}</span>
       <span class="col-level row-meta">${item.level ?? '—'}</span>
       <span class="col-bulk row-meta">${formatBulk(item.bulk)}</span>
       <span class="col-price row-meta">${formatPrice(item.price)}</span>
@@ -1055,7 +1055,7 @@ function renderUserItemsList() {
           ${item.name}
           ${item.sourceId ? '<i class="ti ti-tool" style="font-size: 12px; color: #5B7F95; margin-left: 4px;" title="Modified from existing item"></i>' : ''}
         </span>
-        <span class="col-detail row-meta">${item.type || '—'}</span>
+        <span class="col-detail row-meta">${capitalise(item.type) || '—'}</span>
         <span class="col-level row-meta">${item.level ?? '—'}</span>
         <span class="col-bulk row-meta">${formatBulk(item.bulk)}</span>
         <span class="col-price row-meta">${typeof item.price === 'string' ? item.price : formatPrice(item.price)}</span>
