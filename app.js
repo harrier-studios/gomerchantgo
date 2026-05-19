@@ -19,6 +19,13 @@ let inventorySortBy  = 'level';    // 'level' | 'price' | 'name'
 // Navigation stack
 const navStack = [];
 
+// Tab → screen mapping
+const TAB_SCREENS = {
+  'tab-merchants': ['screen-merchants', 'screen-merchant-new', 'screen-merchant-result'],
+  'tab-custom':    ['screen-custom-data', 'screen-custom-new', 'screen-custom-existing'],
+  'tab-settings':  ['screen-settings']
+};
+
 // ─── Utilities ────────────────────────────────────────────
 
 function generateId() {
@@ -78,6 +85,23 @@ async function loadItems() {
   }
 }
 
+async function loadFirearms() {
+  try {
+    const response = await fetch('data/firearms.json');
+    const names = await response.json();
+    const nameSet = new Set(names.map(n => n.toLowerCase()));
+    state.items.forEach(item => {
+      if (nameSet.has(item.name?.toLowerCase())) {
+        if (!item.traits) item.traits = [];
+        if (!item.traits.includes('firearm')) item.traits.push('firearm');
+      }
+    });
+    console.log(`Patched firearm traits onto ${names.length} items`);
+  } catch (err) {
+    console.error('Failed to load firearms.json:', err);
+  }
+}
+
 async function loadAncestries() {
   try {
     const response = await fetch('data/ancestries.json');
@@ -96,23 +120,6 @@ async function loadAncestries() {
     populateAncestryDropdown();
   } catch (err) {
     console.error('Failed to load ancestries.json:', err);
-  }
-}
-
-async function loadFirearms() {
-  try {
-    const response = await fetch('data/firearms.json');
-    const names = await response.json();
-    const nameSet = new Set(names.map(n => n.toLowerCase()));
-    state.items.forEach(item => {
-      if (nameSet.has(item.name?.toLowerCase())) {
-        if (!item.traits) item.traits = [];
-        if (!item.traits.includes('firearm')) item.traits.push('firearm');
-      }
-    });
-    console.log(`Patched firearm traits onto ${names.length} items`);
-  } catch (err) {
-    console.error('Failed to load firearms.json:', err);
   }
 }
 
@@ -143,13 +150,17 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
   if (id === 'screen-custom-existing') initExistingItems();
   updateBackButton();
+  updateTabBar(id);
 }
 
-function goHome() {
+function navigateTab(screenId) {
+  // Clear nav stack when switching top-level tabs
   navStack.length = 0;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-home').classList.add('active');
+  document.getElementById(screenId).classList.add('active');
+  if (screenId === 'screen-custom-existing') initExistingItems();
   updateBackButton();
+  updateTabBar(screenId);
 }
 
 function goBack() {
@@ -159,14 +170,28 @@ function goBack() {
   document.getElementById(previous).classList.add('active');
   if (previous === 'screen-custom-existing') initExistingItems();
   updateBackButton();
+  updateTabBar(previous);
 }
 
 function updateBackButton() {
-  const btn = document.getElementById('back-btn');
-  if (!btn) return;
   const current = document.querySelector('.screen.active');
-  const isHome = current?.id === 'screen-home';
-  btn.style.display = isHome ? 'none' : 'flex';
+  if (!current) return;
+  // Top-level tab screens — no back button
+  const topLevel = ['screen-merchants', 'screen-custom-data', 'screen-settings'];
+  const isTopLevel = topLevel.includes(current.id);
+  // Find the back-btn in the active screen
+  const btn = current.querySelector('.back-btn');
+  if (btn) btn.style.display = isTopLevel ? 'none' : 'flex';
+}
+
+function updateTabBar(screenId) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  for (const [tabId, screens] of Object.entries(TAB_SCREENS)) {
+    if (screens.includes(screenId)) {
+      document.getElementById(tabId)?.classList.add('active');
+      break;
+    }
+  }
 }
 
 // ─── New Merchant Form ────────────────────────────────────
@@ -223,11 +248,12 @@ const ECONOMY_CONFIG = {
 const STORE_TYPES = {
   'any':          { types: [],                             traits: [] },
   'blacksmith':   { types: ['weapon', 'armor', 'shield'], traits: [] },
+  'ranged':       { types: ['ammo'],                      traits: ['bow', 'crossbow', 'ranged', 'firearm'] },
   'alchemist':    { types: ['consumable'],                traits: ['alchemical', 'bomb', 'poison', 'elixir', 'mutagen'] },
   'arcane-goods': { types: [],                            traits: ['magical', 'arcane', 'scroll', 'wand', 'staff'] },
   'divine-goods': { types: [],                            traits: ['divine', 'holy', 'unholy', 'healing'] },
   'general-store':{ types: ['equipment', 'consumable'],   traits: [] },
-  'ranged':       { types: ['ammo'],                      traits: ['bow', 'crossbow', 'ranged', 'firearm'] },
+  'gunsmith':     { types: [],                            traits: ['firearm'] }
 };
 
 const STOCKING_STYLE = {
@@ -344,7 +370,7 @@ function generateMerchant() {
 function generateSampleMerchants() {
   const samples = [
     {
-      name: 'Durgin\'s Arms & Armour',
+      name: "Durgin's Arms & Armour",
       settlement: 'city',
       economy: 'military',
       storeType: 'blacksmith',
@@ -352,7 +378,7 @@ function generateSampleMerchants() {
       rarity: ['common', 'uncommon']
     },
     {
-      name: 'Thessaly\'s Curios',
+      name: "Thessaly's Curios",
       settlement: 'city',
       economy: 'arcane',
       storeType: 'arcane-goods',
@@ -361,7 +387,7 @@ function generateSampleMerchants() {
       rarity: ['common', 'uncommon', 'rare']
     },
     {
-      name: 'Mira\'s Remedies',
+      name: "Mira's Remedies",
       settlement: 'town',
       economy: 'trade-hub',
       storeType: 'alchemist',
@@ -484,7 +510,6 @@ function itemSortValue(item) {
     if (!p || typeof p === 'string') return 0;
     return (p.gp || 0) * 100 + (p.sp || 0) * 10 + (p.cp || 0);
   }
-  // default: level
   return item.level ?? 0;
 }
 
@@ -507,7 +532,7 @@ function renderDescriptionPanel(item) {
     item.source   ? { label: 'Source',   value: item.source }               : null,
   ].filter(Boolean);
 
-  const traits = (item.traits || []).filter(t => t !== 'firearm' || true);
+  const traits = (item.traits || []);
   const description = item.description ? cleanDescription(item.description) : null;
 
   return `
@@ -524,7 +549,7 @@ function renderDescriptionPanel(item) {
           </div>` : ''}
         ${traits.length ? `
           <div class="item-desc-traits">
-            ${traits.map(t => `<span class="badge badge-${badgeClass(t) ? '' : 'common'}">${capitalise(t)}</span>`).join('')}
+            ${traits.map(t => `<span class="badge badge-${badgeClass(t) || 'common'}">${capitalise(t)}</span>`).join('')}
           </div>` : ''}
         ${description
           ? `<p class="item-desc-text">${description}</p>`
@@ -537,10 +562,7 @@ function toggleDescription(row) {
   const wrapper = row.closest('.item-wrapper');
   const panel = wrapper.querySelector('.item-description');
   const isOpen = panel.classList.contains('open');
-
-  // Close any other open panels first
   document.querySelectorAll('.item-description.open').forEach(p => p.classList.remove('open'));
-
   if (!isOpen) panel.classList.add('open');
 }
 
@@ -558,6 +580,7 @@ function renderItemRow(item) {
       ${renderDescriptionPanel(item)}
     </div>`;
 }
+
 function renderInventory(inventory) {
   const container = document.getElementById('result-inventory');
 
@@ -571,20 +594,17 @@ function renderInventory(inventory) {
     return;
   }
 
-  // Resolve full item objects with quantity
   const resolved = [];
   inventory.forEach(({ id, quantity }) => {
     const item = state.items.find(i => i.id === id);
     if (item) resolved.push({ ...item, quantity });
   });
 
-  // ── Flat list ──────────────────────────────────────────
   if (inventoryGroupBy === 'flat') {
     container.innerHTML = sortItems(resolved).map(renderItemRow).join('');
     return;
   }
 
-  // ── Grouped ────────────────────────────────────────────
   const RARITY_ORDER = ['common', 'uncommon', 'rare', 'unique'];
 
   const getGroupKey = item =>
@@ -639,61 +659,25 @@ function regenerateMerchant() {
   if (!state.currentMerchant) return;
 
   const s = state.currentMerchant.generatorSettings;
-  const maxLevel = SETTLEMENT_LEVEL[s.settlementSize] || 14;
-  const economyConfig = ECONOMY_CONFIG[s.economy] || ECONOMY_CONFIG['trade-hub'];
-  const storeConfig = STORE_TYPES[s.storeType] || STORE_TYPES['any'];
-  const styleConfig = STOCKING_STYLE[s.stockingStyle] || STOCKING_STYLE['focused'];
-
-  let pool = state.items.filter(item => {
-    if (item.level > maxLevel) return false;
-    if (!s.rarity.includes(item.rarity?.toLowerCase())) return false;
-
-    if (storeConfig.types.length > 0 || storeConfig.traits.length > 0) {
-      const itemTraits = item.traits || [];
-      const hasType = storeConfig.types.length > 0 && storeConfig.types.includes(item.type);
-      const hasTrait = storeConfig.traits.length > 0 && storeConfig.traits.some(t => itemTraits.includes(t));
-      if (!hasType && !hasTrait) return false;
-    }
-
-    if (s.ancestry && s.ancestry !== 'any') {
-      if (!(item.traits || []).includes(s.ancestry)) return false;
-    }
-
-    return true;
+  const merchant = buildMerchant({
+    name: state.currentMerchant.name,
+    settlement: s.settlementSize,
+    economy: s.economy,
+    ancestry: s.ancestry,
+    storeType: s.storeType,
+    stockingStyle: s.stockingStyle,
+    arcaneTilt: s.arcaneTilt,
+    pricingModifier: s.pricingModifier,
+    rarity: s.rarity
   });
 
-  if (pool.length === 0) {
+  if (!merchant) {
     alert('No items match these parameters. Try adjusting your filters.');
     return;
   }
 
-  pool = pool.map(item => {
-    let weight = 1;
-    weight *= getLevelWeight(item.level, maxLevel, economyConfig.levelBias, styleConfig.highLevelBias);
-    const isMagical = (item.traits || []).some(t => ['magical', 'arcane', 'divine'].includes(t));
-    if (isMagical) weight *= (1 + s.arcaneTilt * 2);
-    else weight *= (1 + (1 - s.arcaneTilt) * 0.5);
-    if (economyConfig.categoryBias.length > 0) {
-      const hasBias = economyConfig.categoryBias.some(t => (item.traits || []).includes(t));
-      if (hasBias) weight *= 1.5;
-    }
-    return { ...item, weight };
-  });
-
-  const baseCount = Math.floor(
-    (styleConfig.min + Math.random() * (styleConfig.max - styleConfig.min))
-    * economyConfig.multiplier
-  );
-  const count = Math.max(3, baseCount);
-  const selected = weightedSample(pool, count);
-
-  const inventory = selected.map(item => ({
-    id: item.id,
-    quantity: generateQuantity(item, s.economy, s.storeType)
-  }));
-
-  state.currentMerchant.inventory = inventory;
-  state.currentMerchant.currency = generateCurrency(s.settlementSize, s.economy);
+  state.currentMerchant.inventory = merchant.inventory;
+  state.currentMerchant.currency = merchant.currency;
 
   const existingIndex = state.merchants.findIndex(m => m.id === state.currentMerchant.id);
   if (existingIndex >= 0) {
@@ -709,7 +693,7 @@ function regenerateMerchant() {
      currency.sp ? `${currency.sp} sp` : null,
      currency.cp ? `${currency.cp} cp` : null]
     .filter(Boolean).join(' · ') || '—';
-  document.getElementById('result-item-count').textContent = inventory.length;
+  document.getElementById('result-item-count').textContent = state.currentMerchant.inventory.length;
 }
 
 // ─── Open Saved Merchant ──────────────────────────────────
@@ -870,7 +854,7 @@ function openItemForm(item) {
   showScreen('screen-custom-new');
 }
 
-// ---- Sort function ---------------------------------------
+// ─── Sort ─────────────────────────────────────────────────
 
 function sortExistingItems(column) {
   if (existingSortColumn === column) {
@@ -925,7 +909,7 @@ const DEFAULT_SETTINGS = {
   storeType: 'any',
   stockingStyle: 'focused',
   arcaneTilt: 20,
-  pricingModifier: 0, // this is modified in index.html. Current range is -75% to +100%
+  pricingModifier: 0,
   rarity: ['common', 'uncommon']
 };
 
@@ -956,33 +940,28 @@ function saveSettings() {
 }
 
 function applySettingsToForm(settings) {
-  // Merchant form
   document.getElementById('settlement-select').value = settings.settlementSize;
   document.getElementById('economy-select').value = settings.economy;
   document.getElementById('store-type-select').value = settings.storeType;
   document.getElementById('stocking-style-select').value = settings.stockingStyle;
 
-  // Settings form
   document.getElementById('default-settlement-select').value = settings.settlementSize;
   document.getElementById('default-economy-select').value = settings.economy;
   document.getElementById('default-store-type-select').value = settings.storeType;
   document.getElementById('default-stocking-style-select').value = settings.stockingStyle;
 
-  // Arcane tilt — merchant form
   const arcaneInput = document.querySelector('#screen-merchant-new input[type="range"]:nth-of-type(1)');
   if (arcaneInput) {
     arcaneInput.value = settings.arcaneTilt;
     document.getElementById('arcane-display').textContent = settings.arcaneTilt + '%';
   }
 
-  // Arcane tilt — settings form
   const defaultArcaneSlider = document.getElementById('default-arcane-slider');
   if (defaultArcaneSlider) {
     defaultArcaneSlider.value = settings.arcaneTilt;
     document.getElementById('default-arcane-display').textContent = settings.arcaneTilt + '%';
   }
 
-  // Pricing modifier — merchant form
   const priceInput = document.querySelector('#screen-merchant-new input[type="range"]:nth-of-type(2)');
   if (priceInput) {
     priceInput.value = settings.pricingModifier;
@@ -990,7 +969,6 @@ function applySettingsToForm(settings) {
     document.getElementById('price-display').textContent = (v > 0 ? '+' : '') + v + '%';
   }
 
-  // Pricing modifier — settings form
   const defaultPriceSlider = document.getElementById('default-price-slider');
   if (defaultPriceSlider) {
     defaultPriceSlider.value = settings.pricingModifier;
@@ -998,16 +976,12 @@ function applySettingsToForm(settings) {
       (settings.pricingModifier > 0 ? '+' : '') + settings.pricingModifier + '%';
   }
 
-  // Rarity checkboxes — merchant form
   const rarities = ['common', 'uncommon', 'rare', 'unique'];
   document.querySelectorAll('#screen-merchant-new .checkbox-group input[type="checkbox"]')
     .forEach((cb, i) => { cb.checked = settings.rarity.includes(rarities[i]); });
-
-  // Rarity checkboxes — settings form
   document.querySelectorAll('#screen-settings .checkbox-group input[type="checkbox"]')
     .forEach((cb, i) => { cb.checked = settings.rarity.includes(rarities[i]); });
 
-  // Ancestry — applied after dropdown is populated
   const applyAncestry = () => {
     document.getElementById('ancestry-select').value = settings.ancestry || 'any';
     const defaultAncestrySelect = document.getElementById('default-ancestry-select');
@@ -1024,7 +998,7 @@ function applySettingsToForm(settings) {
 function setTheme(btn, theme) {
   applyTheme(theme);
   saveToStorage('theme', theme);
-  updateSettingsThemeBtn(theme);
+  updateThemeCluster(theme);
 }
 
 function toggleDefaultFilters() {
@@ -1109,20 +1083,19 @@ function renderMerchantsList() {
         ? '<span class="badge badge-common">All</span>'
         : s.rarity.map(r => `<span class="badge badge-${r}">${capitalise(r)}</span>`).join('');
 
-return `
-  <div class="list-row grid-merchants" onclick="openMerchant('${merchant.id}')">
-    <span class="col-name row-title">${merchant.name || '<span class="muted">Unnamed Merchant</span>'}</span>
-    <span class="col-detail row-meta">${ancestryDisplay}</span>
-    <span class="col-detail row-meta">${storeDisplay}</span>
-    <span class="col-detail row-meta">${settlementDisplay}</span>
-    <span class="col-detail row-meta">${economyDisplay}</span>
-    <span class="col-detail row-meta">1–${maxLevel}</span>
-    <span class="col-rarity">${rarityBadges}</span>
-    <span class="col-action"><button class="btn-delete" onclick="deleteMerchant(event, '${merchant.id}')">
-      <i class="ti ti-trash"></i>
-    </button></span>
-  </div>
-`;
+      return `
+        <div class="list-row grid-merchants" onclick="openMerchant('${merchant.id}')">
+          <span class="col-name row-title">${merchant.name || '<span class="muted">Unnamed Merchant</span>'}</span>
+          <span class="col-detail row-meta">${ancestryDisplay}</span>
+          <span class="col-detail row-meta">${storeDisplay}</span>
+          <span class="col-detail row-meta">${settlementDisplay}</span>
+          <span class="col-detail row-meta">${economyDisplay}</span>
+          <span class="col-detail row-meta">1–${maxLevel}</span>
+          <span class="col-rarity">${rarityBadges}</span>
+          <span class="col-action"><button class="btn-delete" onclick="deleteMerchant(event, '${merchant.id}')">
+            <i class="ti ti-trash"></i>
+          </button></span>
+        </div>`;
     }).join('')}
   `;
 }
@@ -1348,15 +1321,7 @@ function deleteUserItem(e, id) {
 function initTheme() {
   const saved = loadFromStorage('theme') || 'system';
   applyTheme(saved);
-  updateSettingsThemeBtn(saved);
-}
-
-function cycleTheme() {
-  const current = loadFromStorage('theme') || 'system';
-  const next = current === 'system' ? 'light' : current === 'light' ? 'dark' : 'system';
-  applyTheme(next);
-  saveToStorage('theme', next);
-  updateSettingsThemeBtn(next);
+  updateThemeCluster(saved);
 }
 
 function applyTheme(theme) {
@@ -1374,28 +1339,23 @@ function applyTheme(theme) {
   }
 }
 
-function updateSettingsThemeBtn(theme) {
-  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-  const btns = document.querySelectorAll('.theme-btn');
-  if (theme === 'light') btns[0]?.classList.add('active');
-  if (theme === 'system') btns[1]?.classList.add('active');
-  if (theme === 'dark') btns[2]?.classList.add('active');
+function updateThemeCluster(theme) {
+  document.querySelectorAll('.theme-icon-btn').forEach(b => b.classList.remove('active'));
+  const map = { light: 'theme-btn-light', system: 'theme-btn-system', dark: 'theme-btn-dark' };
+  if (map[theme]) document.getElementById(map[theme])?.classList.add('active');
 }
 
 // ─── Version Check ────────────────────────────────────────
 
 async function checkForUpdates() {
   try {
-    // Get local version first
     const localResponse = await fetch('data/version.json');
     const localData = await localResponse.json();
     const localVersion = localData.version;
 
-    // Update version display in title
     const versionEl = document.getElementById('app-version');
     if (versionEl) versionEl.textContent = `v${localVersion}`;
 
-    // Compare against GitHub's latest
     const remoteResponse = await fetch(
       'https://raw.githubusercontent.com/codeguy1134/gomerchantgo/main/data/version.json',
       { cache: 'no-store' }

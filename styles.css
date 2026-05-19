@@ -28,16 +28,22 @@ body {
 #app {
   max-width: 960px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0 2rem 2rem;
 }
 
-/* ─── Home Screen ─────────────────────────────────────────── */
+/* ─── App Chrome ──────────────────────────────────────────── */
 
-.home-header {
+#app-chrome {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 2rem;
+  align-items: flex-end;
+  padding: 1.5rem 0 1rem;
+}
+
+#app-chrome-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .home-eyebrow {
@@ -47,103 +53,103 @@ body {
   letter-spacing: 0.08em;
   color: #1D9E75;
   text-transform: uppercase;
-  margin-bottom: 4px;
 }
 
 h1 {
   font-family: 'Inter', sans-serif;
   font-weight: 600;
-  font-size: 26px;
+  font-size: 22px;
   color: var(--text-primary);
 }
 
-.home-subtitle {
+.app-version-tag {
   font-size: 13px;
+  font-weight: 400;
   color: var(--text-muted);
-  margin-top: 4px;
+  margin-left: 4px;
 }
 
-.theme-toggle {
+/* ─── Theme Cluster ───────────────────────────────────────── */
+
+#theme-cluster {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--bg-secondary);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.theme-icon-btn {
   background: none;
   border: none;
   cursor: pointer;
   color: var(--text-muted);
-  font-size: 20px;
-  padding: 4px;
-  line-height: 1;
-}
-
-.theme-toggle:hover {
-  color: var(--text-primary);
-}
-
-/* ─── Nav Cards ───────────────────────────────────────────── */
-
-.home-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.nav-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: var(--bg-secondary);
-  border: 0.5px solid var(--border);
-  border-radius: 12px;
-  padding: 1rem 1.25rem;
-  cursor: pointer;
-  width: 100%;
-  text-align: left;
-}
-
-.nav-card:hover {
-  border-color: #5B7F95;
-}
-
-.nav-card-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 8px;
+  font-size: 16px;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  font-size: 22px;
+  transition: background 0.15s, color 0.15s;
 }
 
-.nav-card-icon.teal {
-  background: #0D3D2E;
-  color: #1D9E75;
+.theme-icon-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
 }
 
-.nav-card-icon.blue {
+.theme-icon-btn.active {
   background: #1A2A33;
   color: #5B7F95;
 }
 
-.nav-card-icon.gold {
-  background: #332A12;
-  color: #A07820;
+/* ─── Tab Bar ─────────────────────────────────────────────── */
+
+#tab-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background: var(--bg-secondary);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 1.75rem;
 }
 
-.nav-card-text {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.nav-card-title {
+.tab-btn {
   font-family: 'Inter', sans-serif;
   font-weight: 600;
-  font-size: 15px;
-  color: var(--text-primary);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 7px;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
 }
 
-.nav-card-sub {
-  font-size: 12px;
-  color: var(--text-muted);
+.tab-btn:hover:not(.active) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  box-shadow: inset 0 0 0 0.5px var(--border);
+}
+
+.tab-btn.active {
+  background: var(--bg-primary);
+  color: #5B7F95;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 0 0 0.5px var(--border);
+}
+
+.tab-btn i {
+  font-size: 16px;
 }
 
 /* ─── Screen Header ───────────────────────────────────────── */
@@ -173,6 +179,7 @@ h1 {
   align-items: center;
   justify-content: flex-end;
 }
+
 .screen-subtitle {
   font-size: 13px;
   color: var(--text-muted);
@@ -271,7 +278,7 @@ h1 {
 
 /* Merchants list: Name | Ancestry | Type | Settlement | Economy | Level | Rarity | action */
 .grid-merchants {
-  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 60px 90px 28px;
+  grid-template-columns: 2fr 80px 120px 90px 100px 60px 90px 28px;
 }
 
 /* Merchant result inventory: Item | Qty | Level | Bulk | Price | Rarity */
@@ -317,14 +324,8 @@ h1 {
   text-align: center;
 }
 
-
-
-.col-rarity {
-  white-space: normal;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-  align-content: flex-start;
+.col-price {
+  text-align: right;
 }
 
 /* ─── Row Content ─────────────────────────────────────────── */
@@ -348,7 +349,9 @@ h1 {
   text-align: center;
 }
 
-
+.col-price.row-meta {
+  text-align: right;
+}
 
 .muted {
   color: var(--text-muted);
@@ -369,6 +372,29 @@ h1 {
 .badge-uncommon  { background: #283f4d; color: #5B7F95; }
 .badge-rare      { background: #332A12; color: #A07820; }
 .badge-unique    { background: #2A1A3D; color: #8B5CF6; }
+
+/* ─── col-rarity overrides ────────────────────────────────── */
+
+.col-rarity {
+  white-space: normal;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  align-content: flex-start;
+}
+
+.grid-custom-items .col-rarity {
+  display: block;
+}
+
+.grid-custom-items .col-level,
+.grid-custom-items .col-bulk {
+  text-align: left;
+}
+
+.grid-custom-items .col-price {
+  text-align: left;
+}
 
 /* ─── Category Headings ───────────────────────────────────── */
 
@@ -453,8 +479,6 @@ h1 {
   background: #1A2A33;
   color: #5B7F95;
   border-color: #5B7F95;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
 }
 
 .filter-btn:hover:not(.active) {
@@ -748,39 +772,6 @@ h1 {
 
 /* ─── Settings ────────────────────────────────────────────── */
 
-.theme-btn-group {
-  display: flex;
-  gap: 8px;
-}
-
-.theme-btn {
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 14px;
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 0.5px solid var(--border);
-  background: var(--bg-primary);
-  color: var(--text-muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  justify-content: center;
-}
-
-.theme-btn.active {
-  background: #1A2A33;
-  color: #5B7F95;
-  border-color: #5B7F95;
-}
-
-.theme-btn:hover:not(.active) {
-  color: var(--text-primary);
-  border-color: var(--text-muted);
-}
-
 .settings-row {
   display: flex;
   align-items: center;
@@ -855,47 +846,6 @@ h1 {
   color: #A32D2D;
 }
 
-.path-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.path-display {
-  font-family: 'Questrial', sans-serif;
-  font-size: 13px;
-  color: var(--text-muted);
-  background: var(--bg-primary);
-  border: 0.5px solid var(--border);
-  border-radius: 6px;
-  padding: 6px 10px;
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.btn-copy {
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 13px;
-  background: none;
-  color: #5B7F95;
-  border: 0.5px solid #5B7F95;
-  border-radius: 6px;
-  padding: 6px 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  white-space: nowrap;
-}
-
-.btn-copy:hover {
-  background: #1A2A33;
-}
-
 /* ─── Sortable Column Headers ─────────────────────────────── */
 
 .sortable {
@@ -937,15 +887,12 @@ h1 {
   gap: 6px;
   padding: 7px 14px;
   border-radius: 8px;
-  margin-bottom: 0;
 }
 
 .back-btn:hover {
   border-color: var(--text-muted);
   color: var(--text-primary);
 }
-
-/* ─── Delete Button ───────────────────────────────────────── */
 
 /* ─── Action Column (delete button slot) ─────────────────── */
 
@@ -1099,7 +1046,7 @@ h1 {
 /* ─── Update Notice ───────────────────────────────────────── */
 
 #update-notice {
-  margin-top: 1.5rem;
+  margin-bottom: 1rem;
   padding: 10px 14px;
   background: #1A2A33;
   border: 0.5px solid #5B7F95;
@@ -1129,17 +1076,4 @@ h1 {
   color: #5B7F95;
   font-size: 15px;
   flex-shrink: 0;
-}
-
-.grid-custom-items .col-price {
-  text-align: left;
-}
-
-.grid-custom-items .col-level,
-.grid-custom-items .col-bulk {
-  text-align: left;
-}
-
-.grid-custom-items .col-rarity {
-  display: block;
 }
