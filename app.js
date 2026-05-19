@@ -59,6 +59,7 @@ let currentEditItem = null;
 
 async function init() {
   await loadItems();
+  await loadFirearms();
   await loadAncestries();
   loadMerchants();
   loadUserItems();
@@ -95,6 +96,23 @@ async function loadAncestries() {
     populateAncestryDropdown();
   } catch (err) {
     console.error('Failed to load ancestries.json:', err);
+  }
+}
+
+async function loadFirearms() {
+  try {
+    const response = await fetch('data/firearms.json');
+    const names = await response.json();
+    const nameSet = new Set(names.map(n => n.toLowerCase()));
+    state.items.forEach(item => {
+      if (nameSet.has(item.name?.toLowerCase())) {
+        if (!item.traits) item.traits = [];
+        if (!item.traits.includes('firearm')) item.traits.push('firearm');
+      }
+    });
+    console.log(`Patched firearm traits onto ${names.length} items`);
+  } catch (err) {
+    console.error('Failed to load firearms.json:', err);
   }
 }
 
@@ -209,7 +227,8 @@ const STORE_TYPES = {
   'alchemist':    { types: ['consumable'],                traits: ['alchemical', 'bomb', 'poison', 'elixir', 'mutagen'] },
   'arcane-goods': { types: [],                            traits: ['magical', 'arcane', 'scroll', 'wand', 'staff'] },
   'divine-goods': { types: [],                            traits: ['divine', 'holy', 'unholy', 'healing'] },
-  'general-store':{ types: ['equipment', 'consumable'],   traits: [] }
+  'general-store':{ types: ['equipment', 'consumable'],   traits: [] },
+  'gunsmith':     { types: [],                            traits: ['firearm'] }
 };
 
 const STOCKING_STYLE = {
