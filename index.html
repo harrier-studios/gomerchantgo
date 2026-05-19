@@ -61,6 +61,7 @@
             <span class="nav-card-sub">App preferences</span>
           </div>
         </button>
+      </div>
 <div id="update-notice" style="display: none;">
         <p class="update-notice-text">
           <i class="ti ti-sparkles"></i>
@@ -292,16 +293,16 @@
       <div class="filter-bar">
         <div class="filter-group">
           <span class="filter-label">Group by</span>
-          <button class="filter-btn active" onclick="setFilterActive(this, 'group')">Category</button>
-          <button class="filter-btn" onclick="setFilterActive(this, 'group')">Rarity</button>
-          <button class="filter-btn" onclick="setFilterActive(this, 'group')">Flat list</button>
+          <button class="filter-btn active" onclick="setInventoryGroup(this, 'category')">Category</button>
+          <button class="filter-btn" onclick="setInventoryGroup(this, 'rarity')">Rarity</button>
+          <button class="filter-btn" onclick="setInventoryGroup(this, 'flat')">Flat list</button>
         </div>
         <div class="filter-divider"></div>
         <div class="filter-group">
           <span class="filter-label">Sort by</span>
-          <button class="filter-btn active" onclick="setFilterActive(this, 'sort')">Level</button>
-          <button class="filter-btn" onclick="setFilterActive(this, 'sort')">Price</button>
-          <button class="filter-btn" onclick="setFilterActive(this, 'sort')">Name</button>
+          <button class="filter-btn active" onclick="setInventorySort(this, 'level')">Level</button>
+          <button class="filter-btn" onclick="setInventorySort(this, 'price')">Price</button>
+          <button class="filter-btn" onclick="setInventorySort(this, 'name')">Name</button>
         </div>
       </div>
 

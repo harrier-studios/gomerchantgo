@@ -12,6 +12,10 @@ const state = {
 let existingSortColumn = 'name';
 let existingSortDirection = 'asc';
 
+// Merchant result view state
+let inventoryGroupBy = 'category'; // 'category' | 'rarity' | 'flat'
+let inventorySortBy  = 'level';    // 'level' | 'price' | 'name'
+
 // Navigation stack
 const navStack = [];
 
@@ -161,9 +165,23 @@ function toggleFilters() {
 
 function setFilterActive(btn, group) {
   const allBtns = document.querySelectorAll('.filter-btn');
-  const groupBtns = Array.from(allBtns).filter(b => b.getAttribute('onclick').includes(group));
+  const groupBtns = Array.from(allBtns).filter(b => b.getAttribute('onclick')?.includes(group));
   groupBtns.forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+}
+
+function setInventoryGroup(btn, value) {
+  btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  inventoryGroupBy = value;
+  if (state.currentMerchant) renderInventory(state.currentMerchant.inventory);
+}
+
+function setInventorySort(btn, value) {
+  btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  inventorySortBy = value;
+  if (state.currentMerchant) renderInventory(state.currentMerchant.inventory);
 }
 
 // ─── Generator Config ─────────────────────────────────────
@@ -353,6 +371,16 @@ function generateCurrency(settlement, economy) {
 function displayMerchantResult(merchant) {
   state.currentMerchant = merchant;
 
+  // Reset view state for fresh merchant
+  inventoryGroupBy = 'category';
+  inventorySortBy  = 'level';
+  // Sync filter buttons back to defaults
+  document.querySelectorAll('#screen-merchant-result .filter-btn').forEach(btn => {
+    const oc = btn.getAttribute('onclick') || '';
+    btn.classList.toggle('active',
+      oc.includes("'category'") || oc.includes("'level'"));
+  });
+
   document.getElementById('result-name').textContent = merchant.name || 'Unnamed Merchant';
   const s = merchant.generatorSettings;
   document.getElementById('result-subtitle').textContent = [
@@ -377,6 +405,38 @@ function displayMerchantResult(merchant) {
   showScreen('screen-merchant-result');
 }
 
+function itemSortValue(item) {
+  if (inventorySortBy === 'name')  return item.name?.toLowerCase() ?? '';
+  if (inventorySortBy === 'price') {
+    const p = item.price;
+    if (!p || typeof p === 'string') return 0;
+    return (p.gp || 0) * 100 + (p.sp || 0) * 10 + (p.cp || 0);
+  }
+  // default: level
+  return item.level ?? 0;
+}
+
+function sortItems(items) {
+  return [...items].sort((a, b) => {
+    const va = itemSortValue(a);
+    const vb = itemSortValue(b);
+    if (typeof va === 'string') return va.localeCompare(vb);
+    return va - vb;
+  });
+}
+
+function renderItemRow(item) {
+  return `
+    <div class="list-row">
+      <span class="col-item-name row-title">${item.name}</span>
+      <span class="col-qty row-meta">${item.quantity}</span>
+      <span class="col-level row-meta">${item.level ?? '—'}</span>
+      <span class="col-bulk row-meta">${formatBulk(item.bulk)}</span>
+      <span class="col-price row-meta">${formatPrice(item.price)}</span>
+      <span class="col-rarity"><span class="badge ${badgeClass(item.rarity)}">${capitalise(item.rarity) || '—'}</span></span>
+    </div>`;
+}
+
 function renderInventory(inventory) {
   const container = document.getElementById('result-inventory');
 
@@ -390,30 +450,44 @@ function renderInventory(inventory) {
     return;
   }
 
-  const groups = {};
+  // Resolve full item objects with quantity
+  const resolved = [];
   inventory.forEach(({ id, quantity }) => {
     const item = state.items.find(i => i.id === id);
-    if (!item) return;
-    const category = item.category || item.type || 'Other';
-    if (!groups[category]) groups[category] = [];
-    groups[category].push({ ...item, quantity });
+    if (item) resolved.push({ ...item, quantity });
   });
 
-  container.innerHTML = Object.entries(groups)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([category, items]) => `
-      <p class="category-heading">${capitalise(category)}</p>
-      ${items.sort((a, b) => a.level - b.level).map(item => `
-        <div class="list-row">
-          <span class="col-item-name row-title">${item.name}</span>
-          <span class="col-qty row-meta">${item.quantity}</span>
-          <span class="col-level row-meta">${item.level ?? '—'}</span>
-          <span class="col-bulk row-meta">${formatBulk(item.bulk)}</span>
-          <span class="col-price row-meta">${formatPrice(item.price)}</span>
-          <span class="col-rarity"><span class="badge ${badgeClass(item.rarity)}">${capitalise(item.rarity) || '—'}</span></span>
-        </div>
-      `).join('')}
-    `).join('');
+  // ── Flat list ──────────────────────────────────────────
+  if (inventoryGroupBy === 'flat') {
+    container.innerHTML = sortItems(resolved).map(renderItemRow).join('');
+    return;
+  }
+
+  // ── Grouped ────────────────────────────────────────────
+  const RARITY_ORDER = ['common', 'uncommon', 'rare', 'unique'];
+
+  const getGroupKey = item =>
+    inventoryGroupBy === 'rarity'
+      ? (item.rarity?.toLowerCase() || 'common')
+      : (item.category || item.type || 'other');
+
+  const groups = {};
+  resolved.forEach(item => {
+    const key = getGroupKey(item);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(item);
+  });
+
+  const sortedGroupKeys = Object.keys(groups).sort((a, b) =>
+    inventoryGroupBy === 'rarity'
+      ? RARITY_ORDER.indexOf(a) - RARITY_ORDER.indexOf(b)
+      : a.localeCompare(b)
+  );
+
+  container.innerHTML = sortedGroupKeys.map(key => `
+    <p class="category-heading">${capitalise(key)}</p>
+    ${sortItems(groups[key]).map(renderItemRow).join('')}
+  `).join('');
 }
 
 // ─── Save Merchant ────────────────────────────────────────
