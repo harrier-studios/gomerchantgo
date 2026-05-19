@@ -220,28 +220,27 @@ const STOCKING_STYLE = {
 
 // ─── Merchant Generator ───────────────────────────────────
 
-function generateMerchant() {
-  const name = document.getElementById('merchant-name-input').value.trim();
-  const settlement = document.getElementById('settlement-select').value;
-  const economy = document.getElementById('economy-select').value;
-  const ancestry = document.getElementById('ancestry-select').value;
-  const storeType = document.getElementById('store-type-select').value;
-  const stockingStyle = document.getElementById('stocking-style-select').value;
-  const arcaneTilt = parseInt(document.getElementById('arcane-display').textContent) / 100;
-  const pricingModifier = parseInt(document.getElementById('price-display').textContent) / 100;
-
-  const rarityCheckboxes = document.querySelectorAll('#screen-merchant-new .checkbox-group input[type="checkbox"]');
-  const allowedRarities = ['common', 'uncommon', 'rare', 'unique'].filter((r, i) => rarityCheckboxes[i]?.checked);
+function buildMerchant(config) {
+  const {
+    name = null,
+    settlement = 'city',
+    economy = 'trade-hub',
+    ancestry = 'any',
+    storeType = 'any',
+    stockingStyle = 'focused',
+    arcaneTilt = 0.2,
+    pricingModifier = 0,
+    rarity = ['common', 'uncommon']
+  } = config;
 
   const maxLevel = SETTLEMENT_LEVEL[settlement] || 14;
   const economyConfig = ECONOMY_CONFIG[economy] || ECONOMY_CONFIG['trade-hub'];
   const storeConfig = STORE_TYPES[storeType] || STORE_TYPES['any'];
   const styleConfig = STOCKING_STYLE[stockingStyle] || STOCKING_STYLE['focused'];
 
-  // Step 1 — filter eligible items
   let pool = state.items.filter(item => {
     if (item.level > maxLevel) return false;
-    if (!allowedRarities.includes(item.rarity?.toLowerCase())) return false;
+    if (!rarity.includes(item.rarity?.toLowerCase())) return false;
 
     if (storeConfig.types.length > 0 || storeConfig.traits.length > 0) {
       const itemTraits = item.traits || [];
@@ -257,30 +256,21 @@ function generateMerchant() {
     return true;
   });
 
-  if (pool.length === 0) {
-    alert('No items match these parameters. Try adjusting your filters.');
-    return;
-  }
+  if (pool.length === 0) return null;
 
-  // Step 2 — assign weights
   pool = pool.map(item => {
     let weight = 1;
-
     weight *= getLevelWeight(item.level, maxLevel, economyConfig.levelBias, styleConfig.highLevelBias);
-
     const isMagical = (item.traits || []).some(t => ['magical', 'arcane', 'divine'].includes(t));
     if (isMagical) weight *= (1 + arcaneTilt * 2);
     else weight *= (1 + (1 - arcaneTilt) * 0.5);
-
     if (economyConfig.categoryBias.length > 0) {
       const hasBias = economyConfig.categoryBias.some(t => (item.traits || []).includes(t));
       if (hasBias) weight *= 1.5;
     }
-
     return { ...item, weight };
   });
 
-  // Step 3 — pick items by weighted random
   const baseCount = Math.floor(
     (styleConfig.min + Math.random() * (styleConfig.max - styleConfig.min))
     * economyConfig.multiplier
@@ -288,16 +278,14 @@ function generateMerchant() {
   const count = Math.max(3, baseCount);
   const selected = weightedSample(pool, count);
 
-  // Step 4 — assign quantities
   const inventory = selected.map(item => ({
     id: item.id,
     quantity: generateQuantity(item, economy, storeType)
   }));
 
-  // Step 5 — build merchant object
-  const merchant = {
+  return {
     id: generateId(),
-    name: name || null,
+    name,
     currency: generateCurrency(settlement, economy),
     inventory,
     generatorSettings: {
@@ -308,11 +296,77 @@ function generateMerchant() {
       stockingStyle,
       arcaneTilt,
       pricingModifier,
-      rarity: allowedRarities
+      rarity
     }
   };
+}
+
+function generateMerchant() {
+  const name = document.getElementById('merchant-name-input').value.trim();
+  const settlement = document.getElementById('settlement-select').value;
+  const economy = document.getElementById('economy-select').value;
+  const ancestry = document.getElementById('ancestry-select').value;
+  const storeType = document.getElementById('store-type-select').value;
+  const stockingStyle = document.getElementById('stocking-style-select').value;
+  const arcaneTilt = parseInt(document.getElementById('arcane-display').textContent) / 100;
+  const pricingModifier = parseInt(document.getElementById('price-display').textContent) / 100;
+  const rarityCheckboxes = document.querySelectorAll('#screen-merchant-new .checkbox-group input[type="checkbox"]');
+  const rarity = ['common', 'uncommon', 'rare', 'unique'].filter((r, i) => rarityCheckboxes[i]?.checked);
+
+  const merchant = buildMerchant({ name, settlement, economy, ancestry, storeType, stockingStyle, arcaneTilt, pricingModifier, rarity });
+
+  if (!merchant) {
+    alert('No items match these parameters. Try adjusting your filters.');
+    return;
+  }
 
   displayMerchantResult(merchant);
+}
+
+function generateSampleMerchants() {
+  const samples = [
+    {
+      name: 'Durgin\'s Arms & Armour',
+      settlement: 'city',
+      economy: 'military',
+      storeType: 'blacksmith',
+      stockingStyle: 'focused',
+      rarity: ['common', 'uncommon']
+    },
+    {
+      name: 'Thessaly\'s Curios',
+      settlement: 'city',
+      economy: 'arcane',
+      storeType: 'arcane-goods',
+      stockingStyle: 'curated',
+      arcaneTilt: 0.9,
+      rarity: ['common', 'uncommon', 'rare']
+    },
+    {
+      name: 'Mira\'s Remedies',
+      settlement: 'town',
+      economy: 'trade-hub',
+      storeType: 'alchemist',
+      stockingStyle: 'broad',
+      rarity: ['common', 'uncommon']
+    },
+    {
+      name: 'The Dusty Sack',
+      settlement: 'village',
+      economy: 'frontier',
+      storeType: 'general-store',
+      stockingStyle: 'broad',
+      rarity: ['common']
+    }
+  ];
+
+  samples.forEach(config => {
+    const merchant = buildMerchant(config);
+    if (merchant) state.merchants.push(merchant);
+  });
+
+  saveMerchants();
+  renderMerchantsList();
 }
 
 function getLevelWeight(itemLevel, maxLevel, levelBias, highLevelBias) {
@@ -951,7 +1005,8 @@ function loadFromStorage(key) {
 
 function loadMerchants() {
   state.merchants = loadFromStorage('merchants') || [];
-  renderMerchantsList();
+  if (state.merchants.length === 0) generateSampleMerchants();
+  else renderMerchantsList();
 }
 
 function saveMerchants() {
