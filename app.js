@@ -16,6 +16,13 @@ let existingSortDirection = 'asc';
 let inventoryGroupBy = 'category'; // 'category' | 'rarity' | 'flat'
 let inventorySortBy  = 'level';    // 'level' | 'price' | 'name'
 
+// Quantity edit mode
+let editModeActive = false;
+let editModeSnapshot = []; // frozen resolved items for edit mode
+
+// Modal state
+let modalSelectedItem = null;
+
 // Navigation stack
 const navStack = [];
 
@@ -154,7 +161,6 @@ function showScreen(id) {
 }
 
 function navigateTab(screenId) {
-  // Clear nav stack when switching top-level tabs
   navStack.length = 0;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(screenId).classList.add('active');
@@ -176,10 +182,8 @@ function goBack() {
 function updateBackButton() {
   const current = document.querySelector('.screen.active');
   if (!current) return;
-  // Top-level tab screens — no back button
   const topLevel = ['screen-merchants', 'screen-custom-data', 'screen-settings'];
   const isTopLevel = topLevel.includes(current.id);
-  // Find the back-btn in the active screen
   const btn = current.querySelector('.back-btn');
   if (btn) btn.style.display = isTopLevel ? 'none' : 'flex';
 }
@@ -214,6 +218,7 @@ function setFilterActive(btn, group) {
 }
 
 function setInventoryGroup(btn, value) {
+  if (editModeActive) return; // frozen in edit mode
   btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   inventoryGroupBy = value;
@@ -221,6 +226,7 @@ function setInventoryGroup(btn, value) {
 }
 
 function setInventorySort(btn, value) {
+  if (editModeActive) return; // frozen in edit mode
   btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   inventorySortBy = value;
@@ -469,38 +475,42 @@ function generateCurrency(settlement, economy) {
 function displayMerchantResult(merchant) {
   state.currentMerchant = merchant;
 
-  // Reset view state for fresh merchant
+  // Exit edit mode if active
+  if (editModeActive) exitEditMode(false);
+
+  // Reset view state
   inventoryGroupBy = 'category';
   inventorySortBy  = 'level';
-  // Sync filter buttons back to defaults
   document.querySelectorAll('#screen-merchant-result .filter-btn').forEach(btn => {
     const oc = btn.getAttribute('onclick') || '';
     btn.classList.toggle('active',
       oc.includes("'category'") || oc.includes("'level'"));
   });
 
-  document.getElementById('result-name').textContent = merchant.name || 'Unnamed Merchant';
-  const s = merchant.generatorSettings;
   document.getElementById('result-subtitle').textContent = [
-    s.ancestry !== 'any' ? capitalise(s.ancestry) : null,
-    capitalise(s.storeType.replace(/-/g, ' ')),
-    capitalise(s.settlementSize),
-    capitalise(s.economy.replace(/-/g, ' '))
+    merchant.generatorSettings.ancestry !== 'any' ? capitalise(merchant.generatorSettings.ancestry) : null,
+    capitalise(merchant.generatorSettings.storeType.replace(/-/g, ' ')),
+    capitalise(merchant.generatorSettings.settlementSize),
+    capitalise(merchant.generatorSettings.economy.replace(/-/g, ' '))
   ].filter(Boolean).join(' · ');
 
+  updateMerchantStats();
+  renderInventory(merchant.inventory);
+  showScreen('screen-merchant-result');
+}
+
+function updateMerchantStats() {
+  const merchant = state.currentMerchant;
+  if (!merchant) return;
   const currency = merchant.currency;
   document.getElementById('result-currency').textContent =
     [currency.gp ? `${currency.gp} gp` : null,
      currency.sp ? `${currency.sp} sp` : null,
      currency.cp ? `${currency.cp} cp` : null]
     .filter(Boolean).join(' · ') || '—';
-
   document.getElementById('result-item-count').textContent = merchant.inventory.length;
-  document.getElementById('result-rarity').textContent = s.rarity.map(capitalise).join(' · ');
-  document.getElementById('result-max-level').textContent = SETTLEMENT_LEVEL[s.settlementSize] || '—';
-
-  renderInventory(merchant.inventory);
-  showScreen('screen-merchant-result');
+  document.getElementById('result-rarity').textContent = merchant.generatorSettings.rarity.map(capitalise).join(' · ');
+  document.getElementById('result-max-level').textContent = SETTLEMENT_LEVEL[merchant.generatorSettings.settlementSize] || '—';
 }
 
 function itemSortValue(item) {
@@ -559,12 +569,15 @@ function renderDescriptionPanel(item) {
 }
 
 function toggleDescription(row) {
+  if (editModeActive) return; // disabled in edit mode
   const wrapper = row.closest('.item-wrapper');
   const panel = wrapper.querySelector('.item-description');
   const isOpen = panel.classList.contains('open');
   document.querySelectorAll('.item-description.open').forEach(p => p.classList.remove('open'));
   if (!isOpen) panel.classList.add('open');
 }
+
+// ─── Normal Item Row ──────────────────────────────────────
 
 function renderItemRow(item) {
   return `
@@ -581,8 +594,64 @@ function renderItemRow(item) {
     </div>`;
 }
 
+// ─── Edit Mode Item Row ───────────────────────────────────
+
+function renderEditRow(item) {
+  return `
+    <div class="item-wrapper">
+      <div class="list-row grid-inventory-edit">
+        <span class="col-item-name row-title">${item.name}</span>
+        <span class="col-qty">
+          <div class="qty-stepper">
+            <button class="qty-btn" onclick="stepEditQty(this, -1)">−</button>
+            <input type="number" class="qty-input" value="${item.quantity}" min="0" max="999"
+              data-item-id="${item.id}" oninput="clampEditQty(this)" />
+            <button class="qty-btn" onclick="stepEditQty(this, 1)">+</button>
+          </div>
+        </span>
+        <span class="col-level row-meta">${item.level ?? '—'}</span>
+        <span class="col-bulk row-meta">${formatBulk(item.bulk)}</span>
+        <span class="col-price row-meta">${formatPrice(item.price)}</span>
+        <span class="col-rarity"><span class="badge ${badgeClass(item.rarity)}">${capitalise(item.rarity) || '—'}</span></span>
+        <span class="col-action">
+          <button class="btn-delete" onclick="removeEditRow(this, '${item.id}')">
+            <i class="ti ti-trash"></i>
+          </button>
+        </span>
+      </div>
+    </div>`;
+}
+
+function stepEditQty(btn, delta) {
+  const input = btn.parentElement.querySelector('.qty-input');
+  const newVal = Math.max(0, parseInt(input.value || 0) + delta);
+  input.value = newVal;
+}
+
+function clampEditQty(input) {
+  const v = parseInt(input.value);
+  if (isNaN(v) || v < 0) input.value = 0;
+}
+
+function removeEditRow(btn, itemId) {
+  const wrapper = btn.closest('.item-wrapper');
+  wrapper.remove();
+}
+
+// ─── Inventory Render ─────────────────────────────────────
+
+function resolveInventory(inventory) {
+  const resolved = [];
+  inventory.forEach(({ id, quantity }) => {
+    const item = state.items.find(i => i.id === id);
+    if (item) resolved.push({ ...item, quantity });
+  });
+  return resolved;
+}
+
 function renderInventory(inventory) {
   const container = document.getElementById('result-inventory');
+  const header = document.getElementById('inventory-header');
 
   if (inventory.length === 0) {
     container.innerHTML = `
@@ -594,11 +663,60 @@ function renderInventory(inventory) {
     return;
   }
 
-  const resolved = [];
-  inventory.forEach(({ id, quantity }) => {
-    const item = state.items.find(i => i.id === id);
-    if (item) resolved.push({ ...item, quantity });
-  });
+  const resolved = resolveInventory(inventory);
+
+  if (editModeActive) {
+    // Edit mode — use frozen snapshot, show edit grid
+    header.className = 'list-header grid-inventory-edit';
+    header.innerHTML = `
+      <span class="col-item-name">Item</span>
+      <span class="col-qty">Quantity</span>
+      <span class="col-level">Level</span>
+      <span class="col-bulk">Bulk</span>
+      <span class="col-price">Price</span>
+      <span class="col-rarity">Rarity</span>
+      <span class="col-action"></span>`;
+
+    if (inventoryGroupBy === 'flat') {
+      container.innerHTML = editModeSnapshot.map(renderEditRow).join('');
+      return;
+    }
+
+    const RARITY_ORDER = ['common', 'uncommon', 'rare', 'unique'];
+    const getGroupKey = item =>
+      inventoryGroupBy === 'rarity'
+        ? (item.rarity?.toLowerCase() || 'common')
+        : (item.category || item.type || 'other');
+
+    const groups = {};
+    editModeSnapshot.forEach(item => {
+      const key = getGroupKey(item);
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(item);
+    });
+
+    const sortedGroupKeys = Object.keys(groups).sort((a, b) =>
+      inventoryGroupBy === 'rarity'
+        ? RARITY_ORDER.indexOf(a) - RARITY_ORDER.indexOf(b)
+        : a.localeCompare(b)
+    );
+
+    container.innerHTML = sortedGroupKeys.map(key => `
+      <p class="category-heading">${capitalise(key)}</p>
+      ${groups[key].map(renderEditRow).join('')}
+    `).join('');
+    return;
+  }
+
+  // Normal mode
+  header.className = 'list-header grid-inventory';
+  header.innerHTML = `
+    <span class="col-item-name">Item</span>
+    <span class="col-qty">Qty</span>
+    <span class="col-level">Level</span>
+    <span class="col-bulk">Bulk</span>
+    <span class="col-price">Price</span>
+    <span class="col-rarity">Rarity</span>`;
 
   if (inventoryGroupBy === 'flat') {
     container.innerHTML = sortItems(resolved).map(renderItemRow).join('');
@@ -606,7 +724,6 @@ function renderInventory(inventory) {
   }
 
   const RARITY_ORDER = ['common', 'uncommon', 'rare', 'unique'];
-
   const getGroupKey = item =>
     inventoryGroupBy === 'rarity'
       ? (item.rarity?.toLowerCase() || 'common')
@@ -631,7 +748,89 @@ function renderInventory(inventory) {
   `).join('');
 }
 
-// ─── Save Merchant ────────────────────────────────────────
+// ─── Quantity Edit Mode ───────────────────────────────────
+
+function toggleQuantityEdit() {
+  if (editModeActive) {
+    saveQuantityEdit();
+  } else {
+    enterEditMode();
+  }
+}
+
+function enterEditMode() {
+  editModeActive = true;
+  // Take a snapshot of the current resolved inventory — frozen for duration of edit
+  editModeSnapshot = resolveInventory(state.currentMerchant.inventory);
+
+  const btn = document.getElementById('modify-qty-btn');
+  btn.className = 'btn-save-qty';
+  btn.innerHTML = '<i class="ti ti-device-floppy"></i> Save Quantities';
+
+  renderInventory(state.currentMerchant.inventory);
+}
+
+function saveQuantityEdit() {
+  // Collect all qty inputs still in the DOM
+  const inputs = document.querySelectorAll('#result-inventory .qty-input');
+  const zeros = [];
+
+  inputs.forEach(input => {
+    if (parseInt(input.value) === 0) {
+      const wrapper = input.closest('.item-wrapper');
+      const name = wrapper.querySelector('.col-item-name')?.textContent?.trim() || 'Unknown item';
+      zeros.push(name);
+    }
+  });
+
+  if (zeros.length > 0) {
+    const proceed = confirm(
+      `${zeros.length} item${zeros.length > 1 ? 's' : ''} ${zeros.length > 1 ? 'have' : 'has'} a quantity of 0 and will be removed:\n\n${zeros.join('\n')}\n\nContinue?`
+    );
+    if (!proceed) return;
+  }
+
+  // Build new inventory from DOM state
+  const newInventory = [];
+  document.querySelectorAll('#result-inventory .qty-input').forEach(input => {
+    const qty = parseInt(input.value);
+    if (qty > 0) {
+      newInventory.push({ id: input.dataset.itemId, quantity: qty });
+    }
+  });
+
+  state.currentMerchant.inventory = newInventory;
+  autoSaveMerchant();
+  exitEditMode(true);
+}
+
+function exitEditMode(rerender) {
+  editModeActive = false;
+  editModeSnapshot = [];
+
+  const btn = document.getElementById('modify-qty-btn');
+  btn.className = 'btn-secondary';
+  btn.innerHTML = '<i class="ti ti-pencil"></i> Modify Quantities';
+
+  if (rerender) {
+    renderInventory(state.currentMerchant.inventory);
+    updateMerchantStats();
+  }
+}
+
+// ─── Auto-save ────────────────────────────────────────────
+
+function autoSaveMerchant() {
+  if (!state.currentMerchant) return;
+  const existing = state.merchants.findIndex(m => m.id === state.currentMerchant.id);
+  if (existing >= 0) {
+    state.merchants[existing] = state.currentMerchant;
+    saveMerchants();
+    renderMerchantsList();
+  }
+}
+
+// ─── Save Merchant (manual) ───────────────────────────────
 
 function saveMerchant() {
   if (!state.currentMerchant) return;
@@ -657,6 +856,7 @@ function saveMerchant() {
 
 function regenerateMerchant() {
   if (!state.currentMerchant) return;
+  if (editModeActive) exitEditMode(false);
 
   const s = state.currentMerchant.generatorSettings;
   const merchant = buildMerchant({
@@ -686,14 +886,7 @@ function regenerateMerchant() {
   }
 
   renderInventory(state.currentMerchant.inventory);
-
-  const currency = state.currentMerchant.currency;
-  document.getElementById('result-currency').textContent =
-    [currency.gp ? `${currency.gp} gp` : null,
-     currency.sp ? `${currency.sp} sp` : null,
-     currency.cp ? `${currency.cp} cp` : null]
-    .filter(Boolean).join(' · ') || '—';
-  document.getElementById('result-item-count').textContent = state.currentMerchant.inventory.length;
+  updateMerchantStats();
 }
 
 // ─── Open Saved Merchant ──────────────────────────────────
@@ -703,6 +896,140 @@ function openMerchant(id) {
   if (!merchant) return;
   state.currentMerchant = merchant;
   displayMerchantResult(merchant);
+}
+
+// ─── Add Item Modal ───────────────────────────────────────
+
+function openAddItemModal() {
+  modalSelectedItem = null;
+  document.getElementById('modal-item-search').value = '';
+  document.getElementById('modal-qty-input').value = 1;
+  document.getElementById('modal-qty-controls').style.visibility = 'hidden';
+  document.getElementById('modal-selected-name').textContent = '—';
+  document.getElementById('modal-confirm-btn').disabled = true;
+
+  // Reset filters
+  document.querySelectorAll('#add-item-modal .filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.trim() === 'Any');
+  });
+
+  filterModalItems();
+  document.getElementById('add-item-modal').classList.add('open');
+}
+
+function closeAddItemModal(e) {
+  if (e && e.target !== document.getElementById('add-item-modal')) return;
+  document.getElementById('add-item-modal').classList.remove('open');
+  modalSelectedItem = null;
+}
+
+function filterModalItems() {
+  const search = document.getElementById('modal-item-search').value.toLowerCase();
+  const typeBtn = document.querySelector('#add-item-modal .filter-row:nth-child(2) .filter-btn.active');
+  const rarityBtn = document.querySelector('#add-item-modal .filter-row:nth-child(3) .filter-btn.active');
+  const typeFilter = typeBtn ? typeBtn.textContent.trim() : 'Any';
+  const rarityFilter = rarityBtn ? rarityBtn.textContent.trim() : 'Any';
+
+  const filtered = state.items.filter(item => {
+    if (search && !item.name.toLowerCase().includes(search)) return false;
+    if (typeFilter !== 'Any' && item.type?.toLowerCase() !== typeFilter.toLowerCase()) return false;
+    if (rarityFilter !== 'Any' && item.rarity?.toLowerCase() !== rarityFilter.toLowerCase()) return false;
+    return true;
+  });
+
+  const container = document.getElementById('modal-items-list');
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <i class="ti ti-search"></i>
+        <p>No items found</p>
+        <span>Try adjusting your search or filters</span>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.slice(0, 200).map(item => `
+    <div class="list-row grid-existing-items modal-item-row" onclick="selectModalItem(this, '${item.id}')">
+      <span class="col-item-name row-title">${item.name}</span>
+      <span class="col-detail row-meta">${capitalise(item.type) || '—'}</span>
+      <span class="col-level row-meta">${item.level ?? '—'}</span>
+      <span class="col-bulk row-meta">${formatBulk(item.bulk)}</span>
+      <span class="col-price row-meta">${formatPrice(item.price)}</span>
+      <span class="col-rarity">
+        <span class="badge ${badgeClass(item.rarity)}">${capitalise(item.rarity) || '—'}</span>
+      </span>
+    </div>
+  `).join('');
+}
+
+function setModalFilter(btn, group) {
+  const row = btn.parentElement;
+  row.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterModalItems();
+}
+
+function selectModalItem(row, itemId) {
+  document.querySelectorAll('#modal-items-list .modal-item-row').forEach(r => {
+    r.classList.remove('selected');
+  });
+  row.classList.add('selected');
+  modalSelectedItem = state.items.find(i => i.id === itemId);
+
+  document.getElementById('modal-selected-name').textContent = modalSelectedItem?.name || '—';
+  document.getElementById('modal-qty-controls').style.visibility = 'visible';
+  document.getElementById('modal-confirm-btn').disabled = false;
+}
+
+function stepModalQty(delta) {
+  const input = document.getElementById('modal-qty-input');
+  const newVal = Math.max(1, parseInt(input.value || 1) + delta);
+  input.value = newVal;
+}
+
+function confirmAddItem() {
+  if (!modalSelectedItem || !state.currentMerchant) return;
+
+  const qty = Math.max(1, parseInt(document.getElementById('modal-qty-input').value) || 1);
+
+  // Check for existing entry
+  const existing = state.currentMerchant.inventory.find(e => e.id === modalSelectedItem.id);
+  if (existing) {
+    if (editModeActive) {
+      // Also update the DOM input if in edit mode
+      const input = document.querySelector(`#result-inventory .qty-input[data-item-id="${modalSelectedItem.id}"]`);
+      if (input) {
+        input.value = parseInt(input.value) + qty;
+      } else {
+        existing.quantity += qty;
+      }
+    } else {
+      existing.quantity += qty;
+    }
+  } else {
+    state.currentMerchant.inventory.push({ id: modalSelectedItem.id, quantity: qty });
+    if (editModeActive) {
+      // Add to snapshot and append a new edit row
+      editModeSnapshot.push({ ...modalSelectedItem, quantity: qty });
+      const container = document.getElementById('result-inventory');
+      const newRow = document.createElement('div');
+      newRow.innerHTML = renderEditRow({ ...modalSelectedItem, quantity: qty });
+      // Append to last group or flat list
+      container.appendChild(newRow.firstElementChild);
+    }
+  }
+
+  if (!editModeActive) {
+    renderInventory(state.currentMerchant.inventory);
+  }
+
+  autoSaveMerchant();
+  updateMerchantStats();
+
+  // Close modal
+  document.getElementById('add-item-modal').classList.remove('open');
+  modalSelectedItem = null;
 }
 
 // ─── Create From Existing ─────────────────────────────────
@@ -1114,7 +1441,7 @@ function saveUserItems() {
 function renderUserItemsList() {
   const container = document.getElementById('custom-list');
   const count = document.getElementById('custom-count');
-  count.textContent = `${state.userItems.length} item${state.userItems.length !== 1 ? 's' : ''} saved`;
+  count.textContent = `${state.userItems.length} item${state.userItems.length !== 1 ? 's' : ''}`;
 
   if (state.userItems.length === 0) {
     container.innerHTML = `

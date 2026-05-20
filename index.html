@@ -91,7 +91,6 @@
         </button>
       </div>
       <div class="screen-header-title">
-        <h1>New Merchant</h1>
         <p class="screen-subtitle">Set parameters and generate</p>
       </div>
       <div class="screen-header-right">
@@ -226,7 +225,6 @@
         </button>
       </div>
       <div class="screen-header-title">
-        <h1 id="result-name">Unnamed Merchant</h1>
         <p class="screen-subtitle" id="result-subtitle">—</p>
       </div>
       <div class="screen-header-right">
@@ -239,6 +237,16 @@
           </button>
         </div>
       </div>
+    </div>
+
+    <!-- Secondary action bar -->
+    <div class="inventory-actions">
+      <button class="btn-secondary" id="modify-qty-btn" onclick="toggleQuantityEdit()">
+        <i class="ti ti-pencil"></i> Modify Quantities
+      </button>
+      <button class="btn-secondary" onclick="openAddItemModal()">
+        <i class="ti ti-plus"></i> Add Item
+      </button>
     </div>
 
     <div class="stat-blocks">
@@ -277,7 +285,7 @@
     </div>
 
     <div class="list-container">
-      <div class="list-header grid-inventory">
+      <div class="list-header grid-inventory" id="inventory-header">
         <span class="col-item-name">Item</span>
         <span class="col-qty">Qty</span>
         <span class="col-level">Level</span>
@@ -309,7 +317,7 @@
       <div class="screen-header-right">
         <div class="header-actions">
           <button class="btn-secondary" onclick="showScreen('screen-custom-existing')">
-            <i class="ti ti-copy"></i> Modify Existing
+            <i class="ti ti-copy"></i> Create from Existing
           </button>
           <button class="btn-primary" onclick="showScreen('screen-custom-new')">
             <i class="ti ti-plus"></i> New Item
@@ -335,7 +343,6 @@
         </button>
       </div>
       <div class="screen-header-title">
-        <h1>New Item</h1>
         <p class="screen-subtitle">Create a homebrew item</p>
       </div>
       <div class="screen-header-right">
@@ -443,7 +450,6 @@
         </button>
       </div>
       <div class="screen-header-title">
-        <h1>Create From Existing</h1>
         <p class="screen-subtitle">Select an item to copy and modify</p>
       </div>
       <div class="screen-header-right">
@@ -691,6 +697,67 @@
         </div>
         <button class="btn-danger" onclick="resetAllData()">
           <i class="ti ti-trash"></i> Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Add Item Modal ───────────────────────────────────── -->
+  <div id="add-item-modal" class="modal-overlay" onclick="closeAddItemModal(event)">
+    <div class="modal-card">
+      <div class="modal-header">
+        <p class="modal-title">Add Item to Inventory</p>
+        <button class="modal-close" onclick="closeAddItemModal()">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+
+      <!-- Search and filters -->
+      <div class="modal-filters">
+        <input type="text" class="field-input" placeholder="Search items…" id="modal-item-search" oninput="filterModalItems()" />
+        <div class="filter-row" style="margin-top: 8px;">
+          <span class="filter-label">Type</span>
+          <button class="filter-btn active" onclick="setModalFilter(this, 'type')">Any</button>
+          <button class="filter-btn" onclick="setModalFilter(this, 'type')">Weapon</button>
+          <button class="filter-btn" onclick="setModalFilter(this, 'type')">Armor</button>
+          <button class="filter-btn" onclick="setModalFilter(this, 'type')">Consumable</button>
+          <button class="filter-btn" onclick="setModalFilter(this, 'type')">Worn</button>
+        </div>
+        <div class="filter-row" style="margin-top: 6px;">
+          <span class="filter-label">Rarity</span>
+          <button class="filter-btn active" onclick="setModalFilter(this, 'rarity')">Any</button>
+          <button class="filter-btn" onclick="setModalFilter(this, 'rarity')">Common</button>
+          <button class="filter-btn" onclick="setModalFilter(this, 'rarity')">Uncommon</button>
+          <button class="filter-btn" onclick="setModalFilter(this, 'rarity')">Rare</button>
+          <button class="filter-btn" onclick="setModalFilter(this, 'rarity')">Unique</button>
+        </div>
+      </div>
+
+      <!-- Item list -->
+      <div class="modal-list-container">
+        <div class="list-header grid-existing-items">
+          <span class="col-item-name">Name</span>
+          <span class="col-detail">Type</span>
+          <span class="col-level">Level</span>
+          <span class="col-bulk">Bulk</span>
+          <span class="col-price">Price</span>
+          <span class="col-rarity">Rarity</span>
+        </div>
+        <div id="modal-items-list"></div>
+      </div>
+
+      <!-- Quantity and confirm -->
+      <div class="modal-footer">
+        <div class="modal-qty" id="modal-qty-controls" style="visibility: hidden;">
+          <span class="modal-selected-name" id="modal-selected-name">—</span>
+          <div class="qty-stepper">
+            <button class="qty-btn" onclick="stepModalQty(-1)">−</button>
+            <input type="number" class="qty-input" id="modal-qty-input" value="1" min="1" max="999" />
+            <button class="qty-btn" onclick="stepModalQty(1)">+</button>
+          </div>
+        </div>
+        <button class="btn-primary" id="modal-confirm-btn" onclick="confirmAddItem()" disabled>
+          <i class="ti ti-plus"></i> Add to Inventory
         </button>
       </div>
     </div>
