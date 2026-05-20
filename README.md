@@ -1,66 +1,135 @@
-# Go! Merchant Go!
-Go! Merchant Go! (GMG) is a lightning fast, offline, vendor creation tool for Paizo's Pathfinder 2nd Edition that removes the need to spend your precious time poring through multiple sources to find interesting and relevant items for your players to derail your game with. Paizo's 5600+ item catalog is already included. That means you'll find old classics like, "Longsword," and "Lesser Healing Potion," plus a ton of kit you didn't even know existed.
+# Go! Merchants Go!
 
-You can use Go Merchant Go as part of your pre-session planning, or on the fly. It's dead simple to use and crazy fast, and again, it comes with the entire Pathfinder 2nd Edition item catalog built in; no more importing items yourself to make your merchant app work. You can even modify existing items, or create your own from scratch.
+Go! Merchants Go! (GMG) is a lightning-fast, offline merchant generator for Paizo's Pathfinder 2nd Edition. It removes the need to spend your precious prep time poring through multiple sourcebooks to find interesting and relevant items for your players to derail your campaign with. Paizo's 5,600+ item catalog is already included — old classics like Longsword and Lesser Healing Potion, plus a ton of kit you didn't know existed.
 
-# Features
-- Multiple variables to tweak (or not) to impact a merchant's final inventory:
-      settlement size, economy, ancestry, item types, rarity and more...
-- Leverages Paizo's builtin Trait system for tagging, and you can add your own.
-- Save, Import, and Export merchants and custom items for backup and sharing.
-- No dependencies. No logins. No pestering for updates. GMG is ready to work when you are.
-- GMG will not pester you for updates, but can be updated with the click of a button.
+Use it during pre-session planning or on the fly at the table. It's dead simple, crazy fast, and requires nothing but the browser you're already using.
 
+> **Go! Merchants Go! is not published, endorsed, or specifically approved by Paizo Inc.**
 
-# Installation
-Download the zip file, extract it where you like, and you're ready to go.
-Go Merchant Go's only dependency is the web browser you're already using.
+---
 
+## Features
 
-# Running
-Open index.html. That's it. Go Merchant Go runs right in your browser.
+- **Smart generation** — settlement size, economy, store type, ancestry, stocking style, arcane tilt, pricing modifier, and rarity filters all influence what ends up on the shelf
+- **5,600+ items built in** — the entire Pathfinder 2E item catalog, no importing required
+- **Firearms support** — guns are tagged and available as a dedicated store type
+- **Expandable inventory** — add specific items to any merchant, modify quantities, or remove items entirely after generation
+- **Item descriptions** — click any item to expand a full description panel with traits, stats, and source text
+- **Homebrew support** — create items from scratch or copy and modify any existing item non-destructively
+- **Save, import, and export** — back up your merchants and custom items as JSON, or share them with other GMs
+- **Persistent defaults** — save your preferred generator settings so every new merchant starts where you want
+- **Sample merchants** — four pre-generated merchants are ready the first time you open the app
+- **No dependencies, no logins, no tracking** — GMG works offline and stores everything locally in your browser
 
+---
 
-# Operation
-When you open Go Merchant Go, you'll be faced with a simple screen: Merchants, Custom Data,
-and Settings. Clicking any of these will take you to their relevant screens.
+## Installation
 
-# Merchants
-In here you'll see a list of any merchants you've already saved, and at the top right is the New Merchant button.
+1. Download the latest release zip from the [Releases page](https://github.com/codeguy1134/gomerchantgo/releases)
+2. Extract it anywhere you like
+3. Open `index.html` in your browser
 
-The next screen is the meat of GMG. Here, you'll customize your merchant with a name, determine
-what kind of settlement they're in: size of the settlement, and its economy.
-Then you'll select some variables for the Merchant: Ancestry, Store Type, and Stocking Style.
-After that, you can tweak the stock: Arcane Tilt, Pricing Modifier, Item Rarity.
-Lastly, can further fine-tune your new Merchant with additional filters (tags).
+That's it. No install, no server, no account.
 
-When you're done, hit Generate in the top right (that'll be a theme here).
+---
 
-The next screen will show you your merchant, their inventory, and how much money they have on hand (if you care about that). From here you can either Regenerate the merchant using your previous parameters, save it, or go Back and start over.
+## Usage
 
-# Custom Data
-Clicking this will immediately take you to a list of any previously saved or imported items where you can further edit them, or delete them entirely.
+### Merchants
+The Merchants tab lists all your saved merchants. Hit **New Merchant** to open the generator form, where you can set:
 
-The bread and butter here are the Create from Existing and New Item buttons. New Item is exactly what you expect: create a brand new item from scratch. Create from Existing is how you modify existing items. Clicking that will take you to a screen where you can filter and search the item catalog to find exactly what you're looking for.
+- **Name** — optional; leave blank for an unnamed merchant
+- **Settlement size** — controls the maximum item level (Village → 4, Town → 8, City → 14, Metropolis → 20)
+- **Economy** — influences item quantity and category bias (Trade Hub, Academic, Arcane, Divine, Military, Frontier)
+- **Ancestry** — filters items to those with matching ancestry traits
+- **Store type** — focuses the inventory (Blacksmith, Alchemist, Arcane Goods, Divine Goods, General Store, Ranged Weapons, Gunsmith, or Any)
+- **Stocking style** — controls the number and quality of items (Broad, Focused, or Curated)
+- **Arcane tilt** — weights the pool toward magical or mundane items
+- **Pricing modifier** — adjusts displayed prices from −50% to +100%
+- **Rarity** — include Common, Uncommon, Rare, and/or Unique items
 
-The neat bit? This is all non-destructive. Modifying an existing item will not overwrite the original. This means if you delete the modified item later, the original item persists in the catalog. There are only two ways a published item goes missing from the catalog: Paizo removes it. You edit the catalog and remove it yourself.
+Hit **Generate**. The result screen shows the merchant's inventory grouped by category, with currency on hand and item count. From here you can:
 
-# Settings
-The Light/Dark/System mode toggle is here along with all your Import and Export options.
-Of note, you can customize your defaults for creating Merchants. Playing in a low magic game? Drag the Arcane Tilt slider down, save it, and all your future merchants will default to that lower setting. Think your players have too much gold? Drag the Pricing Modifer up and increase the cost of everything another 50%. Your game centers on exploration and your players rarely make it to busy trading hubs? Set the Economy to Frontier and GMG will fill your merchant with appropriate items for merchants working on tight budgets with few craftspeople to purchase stock from. When you're done, hit Save Defaults in the top right.
+- **Save** the merchant to your list
+- **Regenerate** using the same parameters for a fresh roll
+- **Add Item** to manually add any item from the full catalog with a custom quantity
+- **Modify Quantities** to edit any item's quantity inline, or remove items entirely
+- Group and sort the inventory by category, rarity, or flat list; by level, price, or name
+- Click any item to expand its full description
 
-# Data
-All items and merchants are stored in various .JSON files. Clicking Update will connect to GMG's Github (https://github.com/codeguy1134/merchants/settings), and update items.json. This file is where all the published items are collected.
+### Custom Items
+The Custom Items tab lists your homebrew and modified items. Use **New Item** to create something from scratch, or **Create from Existing** to find an item in the catalog and copy it as a starting point. Modifications are non-destructive — the original item always remains in the catalog.
 
-The Import/Export buttons will import or export their respective targets: merchants, or custom items.
+Custom items appear in the generator pool alongside published items, so your homebrew content shows up naturally in merchant inventories.
 
-# IMPORTANT: GO MERCHANT GO STORES ALL OF YOUR CUSTOM DATA IN YOUR BROWSER! # 
-All of your Merchants and custom items are stored locally in your browser (localStorage). **Clearing your browser's cache, cookies, or site data — or hitting the Reset button — will DELETE your stored data. This CANNOT be undone.** To avoid loss, export your data using the Export buttons.
+### Settings
+Set persistent defaults for the generator so every new merchant starts with your preferred parameters. Changes only take effect after hitting **Save Defaults**.
 
-# Power Users
+The **Data** section lets you:
+- Update the item database from GitHub with one click
+- Export and import merchants and custom items as JSON for backup or sharing
+- Reset all stored data (this cannot be undone — export first)
 
-As mentioned earlier, everything is stored in .JSON files. If you know what you're doing and
-can get around a text editor, you can edit these files directly. Just be aware, that items.json is **dense** and any changes you make to it **will** be overwritten the next time you update GMG.
+---
 
-It is not recommended to create new items directly in the .JSON files, as they are assigned a
-Universally Unique IDentifier (UUID) by the app at creation. This UUID prevents conflicts if two items have the same name. With over 5600 published items in the catalog, this is an important safety feature to keep GMG running smoothly. If you insist, there are UUID generators online. I highly recommend creating UUIDs for your items and adding them to the appropriate headings.
+## Screenshots
+
+*Screenshots coming soon.*
+
+---
+
+## Data & Storage
+
+> ⚠️ **Go! Merchants Go! stores all merchant and custom item data in your browser's localStorage.** Clearing your browser cache, cookies, or site data — or using the Reset button — will permanently delete everything. **Export your data regularly.**
+
+Item data lives in `data/items.json`, `data/firearms.json`, and `data/ancestries.json`. These are read-only at runtime. The only file that updates over the network is `items.json`, and only when you explicitly click **Update** in Settings.
+
+---
+
+## Power Users
+
+All data files are plain JSON. If you're comfortable in a text editor, you can inspect or edit them directly. A few things to keep in mind:
+
+- `items.json` is large and dense. Any manual edits **will be overwritten** the next time you update from GitHub.
+- `firearms.json` is the safe place to add new firearms — it's a simple list of item names that get patched onto the main item pool at load time, and it survives updates.
+- Custom items created in the app are assigned UUIDs automatically. If you create items directly in JSON, use an online UUID generator to avoid conflicts.
+
+---
+
+## Contributing
+
+The repo is currently private while the app is in early development. Contributions, bug reports, and feature requests will be welcome once it goes public.
+
+---
+
+## Legal
+
+### ORC Notice
+
+This product is licensed under the ORC License to be held in the Library of Congress and available online at [paizo.com/orclicense](https://paizo.com/orclicense), [azoralaw.com/orclicense](https://azoralaw.com/orclicense), and others. All warranties are disclaimed as set forth therein.
+
+If you use our Licensed Material in your own published work, please credit us as follows:
+
+*Go! Merchants Go! © 2025, Harrier Studios.*
+
+### Attribution Notice
+
+This product uses Licensed Material from the following upstream sources:
+
+- *Pathfinder Player Core* © 2023 Paizo Inc. Designed by Logan Bonner, Jason Bulmahn, Stephen Radney-MacFarland, and Mark Seifter.
+- *Pathfinder GM Core* © 2023 Paizo Inc. Designed by Logan Bonner and Mark Seifter.
+- *Pathfinder Player Core 2* © 2024 Paizo Inc.
+
+Paizo, the Paizo golem logo, Pathfinder, and the Pathfinder logo are trademarks of Paizo Inc. Go! Merchants Go! is not published, endorsed, or specifically approved by Paizo Inc. For more information about Paizo products, visit [paizo.com](https://paizo.com).
+
+### Reserved Material
+
+The following elements are designated as Reserved Material under the ORC License and are the exclusive property of Harrier Studios: the name "Go! Merchants Go!", the name "Harrier Studios", and all original application code, design, and visual assets not derived from Paizo Licensed Material.
+
+### Product Identity Notice
+
+The Pathfinder item data included in this application (item names, statistics, traits, descriptions, and related mechanical content) is used under the ORC License as Licensed Material. Original application code and tooling are copyright © 2025 Harrier Studios, all rights reserved.
+
+---
+
+*Made with too much coffee by Harrier Studios.*
