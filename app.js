@@ -280,7 +280,9 @@ function buildMerchant(config) {
     stockingStyle = 'focused',
     arcaneTilt = 0.2,
     pricingModifier = 0,
-    rarity = ['common', 'uncommon']
+    rarity = ['common', 'uncommon'],
+    includeTags = [],
+    excludeTags = []
   } = config;
 
   const maxLevel = SETTLEMENT_LEVEL[settlement] || 14;
@@ -301,6 +303,16 @@ function buildMerchant(config) {
 
     if (ancestry && ancestry !== 'any') {
       if (!(item.traits || []).includes(ancestry)) return false;
+    }
+
+    const itemTraitsLower = (item.traits || []).map(t => t.toLowerCase());
+
+    if (includeTags.length > 0) {
+      if (!includeTags.some(t => itemTraitsLower.includes(t))) return false;
+    }
+
+    if (excludeTags.length > 0) {
+      if (excludeTags.some(t => itemTraitsLower.includes(t))) return false;
     }
 
     return true;
@@ -363,7 +375,12 @@ function generateMerchant() {
   const rarityCheckboxes = document.querySelectorAll('#screen-merchant-new .checkbox-group input[type="checkbox"]');
   const rarity = ['common', 'uncommon', 'rare', 'unique'].filter((r, i) => rarityCheckboxes[i]?.checked);
 
-  const merchant = buildMerchant({ name, settlement, economy, ancestry, storeType, stockingStyle, arcaneTilt, pricingModifier, rarity });
+  const includeRaw = document.getElementById('include-tags-input').value;
+  const excludeRaw = document.getElementById('exclude-tags-input').value;
+  const includeTags = includeRaw.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+  const excludeTags = excludeRaw.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+
+  const merchant = buildMerchant({ name, settlement, economy, ancestry, storeType, stockingStyle, arcaneTilt, pricingModifier, rarity, includeTags, excludeTags });
 
   if (!merchant) {
     alert('No items match these parameters. Try adjusting your filters.');
@@ -559,7 +576,7 @@ function renderDescriptionPanel(item) {
           </div>` : ''}
         ${traits.length ? `
           <div class="item-desc-traits">
-            ${traits.map(t => `<span class="badge badge-${badgeClass(t) || 'common'}">${capitalise(t)}</span>`).join('')}
+            ${traits.map(t => `<span class="badge badge-trait">${capitalise(t)}</span>`).join('')}
           </div>` : ''}
         ${description
           ? `<p class="item-desc-text">${description}</p>`
@@ -1237,7 +1254,9 @@ const DEFAULT_SETTINGS = {
   stockingStyle: 'focused',
   arcaneTilt: 20,
   pricingModifier: 0,
-  rarity: ['common', 'uncommon']
+  rarity: ['common', 'uncommon'],
+  includeTags: '',
+  excludeTags: ''
 };
 
 function loadSettings() {
@@ -1255,7 +1274,9 @@ function saveSettings() {
     pricingModifier: parseInt(document.getElementById('default-price-slider').value),
     rarity: ['common', 'uncommon', 'rare', 'unique'].filter((r, i) =>
       document.querySelectorAll('#screen-settings .checkbox-group input[type="checkbox"]')[i]?.checked
-    )
+    ),
+    includeTags: document.getElementById('default-include-tags-input').value,
+    excludeTags: document.getElementById('default-exclude-tags-input').value
   };
   saveToStorage('settings', settings);
 
@@ -1320,6 +1341,11 @@ function applySettingsToForm(settings) {
   } else {
     setTimeout(applyAncestry, 500);
   }
+
+  document.getElementById('include-tags-input').value = settings.includeTags || '';
+  document.getElementById('exclude-tags-input').value = settings.excludeTags || '';
+  document.getElementById('default-include-tags-input').value = settings.includeTags || '';
+  document.getElementById('default-exclude-tags-input').value = settings.excludeTags || '';
 }
 
 function setTheme(btn, theme) {

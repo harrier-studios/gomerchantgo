@@ -384,6 +384,12 @@ h1 {
 .badge-rare      { background: #332A12; color: #A07820; }
 .badge-unique    { background: #2A1A3D; color: #8B5CF6; }
 
+.badge-trait {
+  background: #2A2A2A;
+  color: #9CA3AF;
+  border: 0.5px solid #3A3F47;
+}
+
 /* ─── col-rarity overrides ────────────────────────────────── */
 
 .col-rarity {
