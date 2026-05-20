@@ -254,7 +254,7 @@ const ECONOMY_CONFIG = {
 const STORE_TYPES = {
   'any':          { types: [],                             traits: [] },
   'blacksmith':   { types: ['weapon', 'armor', 'shield'], traits: [] },
-  'ranged':       { types: ['ammo'],                      traits: ['bow', 'crossbow', 'ranged', 'firearm'] },
+  'ranged':       { types: ['ammo'],                      traits: ['bow', 'crossbow', 'ranged'] },
   'alchemist':    { types: ['consumable'],                traits: ['alchemical', 'bomb', 'poison', 'elixir', 'mutagen'] },
   'arcane-goods': { types: [],                            traits: ['magical', 'arcane', 'scroll', 'wand', 'staff'] },
   'divine-goods': { types: [],                            traits: ['divine', 'holy', 'unholy', 'healing'] },
