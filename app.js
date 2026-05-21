@@ -8,25 +8,19 @@ const state = {
   currentMerchant: null
 };
 
-// Adds filtering for columns in Custom Items
 let existingSortColumn = 'name';
 let existingSortDirection = 'asc';
 
-// Merchant result view state
-let inventoryGroupBy = 'category'; // 'category' | 'rarity' | 'flat'
-let inventorySortBy  = 'level';    // 'level' | 'price' | 'name'
+let inventoryGroupBy = 'category';
+let inventorySortBy  = 'level';
 
-// Quantity edit mode
 let editModeActive = false;
-let editModeSnapshot = []; // frozen resolved items for edit mode
+let editModeSnapshot = [];
 
-// Modal state
 let modalSelectedItem = null;
 
-// Navigation stack
 const navStack = [];
 
-// Tab → screen mapping
 const TAB_SCREENS = {
   'tab-merchants': ['screen-merchants', 'screen-merchant-new', 'screen-merchant-result'],
   'tab-custom':    ['screen-custom-data', 'screen-custom-new', 'screen-custom-existing'],
@@ -44,10 +38,6 @@ function badgeClass(rarity) {
   return `badge-${rarity.toLowerCase()}`;
 }
 
-function rarityFromIndex(index) {
-  return ['common', 'uncommon', 'rare', 'unique'][index] || 'common';
-}
-
 function formatBulk(bulk) {
   if (bulk === null || bulk === undefined || bulk === '') return '—';
   return bulk.toString();
@@ -56,6 +46,10 @@ function formatBulk(bulk) {
 function capitalise(str) {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function formatTrait(trait) {
+  return trait.replace(/-/g, ' ');
 }
 
 function cleanDescription(html) {
@@ -67,11 +61,49 @@ function cleanDescription(html) {
   return clean;
 }
 
-function formatTrait(trait) {
-  return trait.replace(/-/g, ' ');
+let currentEditItem = null;
+
+// ─── Gel Slider Helpers ───────────────────────────────────
+
+function updateGelSlider(sliderId, fillId, thumbId, displayId, signed) {
+  const slider = document.getElementById(sliderId);
+  const fill   = document.getElementById(fillId);
+  const thumb  = document.getElementById(thumbId);
+  const display = displayId ? document.getElementById(displayId) : null;
+  if (!slider || !fill || !thumb) return;
+
+  const val = parseInt(slider.value);
+  const min = parseInt(slider.min);
+  const max = parseInt(slider.max);
+  const pct = (val - min) / (max - min) * 100;
+  const label = signed ? (val > 0 ? '+' : '') + val + '%' : val + '%';
+
+  fill.style.width = pct + '%';
+  thumb.style.left = pct + '%';
+  thumb.textContent = label;
+  if (display) display.textContent = label;
 }
 
-let currentEditItem = null;
+function syncGelSlider(sliderId, fillId, thumbId, displayId, signed) {
+  // Set initial visual state from slider value — call on load
+  updateGelSlider(sliderId, fillId, thumbId, displayId, signed);
+}
+
+function updateLevelSlider(sliderId, fillId, thumbId) {
+  const slider = document.getElementById(sliderId);
+  const fill   = document.getElementById(fillId);
+  const thumb  = document.getElementById(thumbId);
+  if (!slider || !fill || !thumb) return;
+
+  const val = parseInt(slider.value);
+  const min = parseInt(slider.min);
+  const max = parseInt(slider.max);
+  const pct = (val - min) / (max - min) * 100;
+
+  fill.style.width = pct + '%';
+  thumb.style.left = pct + '%';
+  thumb.textContent = val;
+}
 
 // ─── Data Loading ─────────────────────────────────────────
 
@@ -82,7 +114,6 @@ async function init() {
   loadMerchants();
   loadUserItems();
   applySettingsToForm(loadSettings());
-  initTheme();
   checkForUpdates();
 }
 
@@ -202,7 +233,7 @@ function updateTabBar(screenId) {
   }
 }
 
-// ─── New Merchant Form ────────────────────────────────────
+// ─── Filters Toggle ───────────────────────────────────────
 
 function toggleFilters() {
   const body = document.getElementById('filters-body');
@@ -212,17 +243,18 @@ function toggleFilters() {
   icon.className = isOpen ? 'ti ti-chevron-right' : 'ti ti-chevron-down';
 }
 
-// ─── Merchant Result ──────────────────────────────────────
-
-function setFilterActive(btn, group) {
-  const allBtns = document.querySelectorAll('.filter-btn');
-  const groupBtns = Array.from(allBtns).filter(b => b.getAttribute('onclick')?.includes(group));
-  groupBtns.forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+function toggleDefaultFilters() {
+  const body = document.getElementById('default-filters-body');
+  const icon = document.getElementById('default-filters-icon');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open');
+  icon.className = isOpen ? 'ti ti-chevron-right' : 'ti ti-chevron-down';
 }
 
+// ─── Inventory View Controls ──────────────────────────────
+
 function setInventoryGroup(btn, value) {
-  if (editModeActive) return; // frozen in edit mode
+  if (editModeActive) return;
   btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   inventoryGroupBy = value;
@@ -230,7 +262,7 @@ function setInventoryGroup(btn, value) {
 }
 
 function setInventorySort(btn, value) {
-  if (editModeActive) return; // frozen in edit mode
+  if (editModeActive) return;
   btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   inventorySortBy = value;
@@ -362,7 +394,9 @@ function buildMerchant(config) {
       stockingStyle,
       arcaneTilt,
       pricingModifier,
-      rarity
+      rarity,
+      includeTags,
+      excludeTags
     }
   };
 }
@@ -374,11 +408,10 @@ function generateMerchant() {
   const ancestry = document.getElementById('ancestry-select').value;
   const storeType = document.getElementById('store-type-select').value;
   const stockingStyle = document.getElementById('stocking-style-select').value;
-  const arcaneTilt = parseInt(document.getElementById('arcane-display').textContent) / 100;
-  const pricingModifier = parseInt(document.getElementById('price-display').textContent) / 100;
+  const arcaneTilt = parseInt(document.getElementById('arcane-slider').value) / 100;
+  const pricingModifier = parseInt(document.getElementById('price-slider').value) / 100;
   const rarityCheckboxes = document.querySelectorAll('#screen-merchant-new .checkbox-group input[type="checkbox"]');
   const rarity = ['common', 'uncommon', 'rare', 'unique'].filter((r, i) => rarityCheckboxes[i]?.checked);
-
   const includeRaw = document.getElementById('include-tags-input').value;
   const excludeRaw = document.getElementById('exclude-tags-input').value;
   const includeTags = includeRaw.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
@@ -493,13 +526,13 @@ function generateCurrency(settlement, economy) {
   return { gp, sp: Math.floor(Math.random() * 10), cp: Math.floor(Math.random() * 10) };
 }
 
+// ─── Merchant Result Display ──────────────────────────────
+
 function displayMerchantResult(merchant) {
   state.currentMerchant = merchant;
 
-  // Exit edit mode if active
   if (editModeActive) exitEditMode(false);
 
-  // Reset view state
   inventoryGroupBy = 'category';
   inventorySortBy  = 'level';
   document.querySelectorAll('#screen-merchant-result .filter-btn').forEach(btn => {
@@ -508,11 +541,12 @@ function displayMerchantResult(merchant) {
       oc.includes("'category'") || oc.includes("'level'"));
   });
 
+  const s = merchant.generatorSettings;
   document.getElementById('result-subtitle').textContent = [
-    merchant.generatorSettings.ancestry !== 'any' ? capitalise(merchant.generatorSettings.ancestry) : null,
-    capitalise(merchant.generatorSettings.storeType.replace(/-/g, ' ')),
-    capitalise(merchant.generatorSettings.settlementSize),
-    capitalise(merchant.generatorSettings.economy.replace(/-/g, ' '))
+    s.ancestry !== 'any' ? capitalise(s.ancestry) : null,
+    capitalise(s.storeType.replace(/-/g, ' ')),
+    capitalise(s.settlementSize),
+    capitalise(s.economy.replace(/-/g, ' '))
   ].filter(Boolean).join(' · ');
 
   updateMerchantStats();
@@ -530,9 +564,13 @@ function updateMerchantStats() {
      currency.cp ? `${currency.cp} cp` : null]
     .filter(Boolean).join(' · ') || '—';
   document.getElementById('result-item-count').textContent = merchant.inventory.length;
-  document.getElementById('result-rarity').textContent = merchant.generatorSettings.rarity.map(capitalise).join(' · ');
-  document.getElementById('result-max-level').textContent = SETTLEMENT_LEVEL[merchant.generatorSettings.settlementSize] || '—';
+  document.getElementById('result-rarity').textContent =
+    merchant.generatorSettings.rarity.map(capitalise).join(' · ');
+  document.getElementById('result-max-level').textContent =
+    SETTLEMENT_LEVEL[merchant.generatorSettings.settlementSize] || '—';
 }
+
+// ─── Inventory Rendering ──────────────────────────────────
 
 function itemSortValue(item) {
   if (inventorySortBy === 'name')  return item.name?.toLowerCase() ?? '';
@@ -590,15 +628,13 @@ function renderDescriptionPanel(item) {
 }
 
 function toggleDescription(row) {
-  if (editModeActive) return; // disabled in edit mode
+  if (editModeActive) return;
   const wrapper = row.closest('.item-wrapper');
   const panel = wrapper.querySelector('.item-description');
   const isOpen = panel.classList.contains('open');
   document.querySelectorAll('.item-description.open').forEach(p => p.classList.remove('open'));
   if (!isOpen) panel.classList.add('open');
 }
-
-// ─── Normal Item Row ──────────────────────────────────────
 
 function renderItemRow(item) {
   return `
@@ -614,8 +650,6 @@ function renderItemRow(item) {
       ${renderDescriptionPanel(item)}
     </div>`;
 }
-
-// ─── Edit Mode Item Row ───────────────────────────────────
 
 function renderEditRow(item) {
   return `
@@ -645,8 +679,7 @@ function renderEditRow(item) {
 
 function stepEditQty(btn, delta) {
   const input = btn.parentElement.querySelector('.qty-input');
-  const newVal = Math.max(0, parseInt(input.value || 0) + delta);
-  input.value = newVal;
+  input.value = Math.max(0, parseInt(input.value || 0) + delta);
 }
 
 function clampEditQty(input) {
@@ -655,11 +688,8 @@ function clampEditQty(input) {
 }
 
 function removeEditRow(btn, itemId) {
-  const wrapper = btn.closest('.item-wrapper');
-  wrapper.remove();
+  btn.closest('.item-wrapper').remove();
 }
-
-// ─── Inventory Render ─────────────────────────────────────
 
 function resolveInventory(inventory) {
   const resolved = [];
@@ -672,7 +702,7 @@ function resolveInventory(inventory) {
 
 function renderInventory(inventory) {
   const container = document.getElementById('result-inventory');
-  const header = document.getElementById('inventory-header');
+  const header    = document.getElementById('inventory-header');
 
   if (inventory.length === 0) {
     container.innerHTML = `
@@ -684,10 +714,14 @@ function renderInventory(inventory) {
     return;
   }
 
-  const resolved = resolveInventory(inventory);
+  const RARITY_ORDER = ['common', 'uncommon', 'rare', 'unique'];
+
+  const getGroupKey = item =>
+    inventoryGroupBy === 'rarity'
+      ? (item.rarity?.toLowerCase() || 'common')
+      : (item.category || item.type || 'other');
 
   if (editModeActive) {
-    // Edit mode — use frozen snapshot, show edit grid
     header.className = 'list-header grid-inventory-edit';
     header.innerHTML = `
       <span class="col-item-name">Item</span>
@@ -703,12 +737,6 @@ function renderInventory(inventory) {
       return;
     }
 
-    const RARITY_ORDER = ['common', 'uncommon', 'rare', 'unique'];
-    const getGroupKey = item =>
-      inventoryGroupBy === 'rarity'
-        ? (item.rarity?.toLowerCase() || 'common')
-        : (item.category || item.type || 'other');
-
     const groups = {};
     editModeSnapshot.forEach(item => {
       const key = getGroupKey(item);
@@ -716,13 +744,13 @@ function renderInventory(inventory) {
       groups[key].push(item);
     });
 
-    const sortedGroupKeys = Object.keys(groups).sort((a, b) =>
+    const sortedKeys = Object.keys(groups).sort((a, b) =>
       inventoryGroupBy === 'rarity'
         ? RARITY_ORDER.indexOf(a) - RARITY_ORDER.indexOf(b)
         : a.localeCompare(b)
     );
 
-    container.innerHTML = sortedGroupKeys.map(key => `
+    container.innerHTML = sortedKeys.map(key => `
       <p class="category-heading">${capitalise(key)}</p>
       ${groups[key].map(renderEditRow).join('')}
     `).join('');
@@ -739,16 +767,12 @@ function renderInventory(inventory) {
     <span class="col-price">Price</span>
     <span class="col-rarity">Rarity</span>`;
 
+  const resolved = resolveInventory(inventory);
+
   if (inventoryGroupBy === 'flat') {
     container.innerHTML = sortItems(resolved).map(renderItemRow).join('');
     return;
   }
-
-  const RARITY_ORDER = ['common', 'uncommon', 'rare', 'unique'];
-  const getGroupKey = item =>
-    inventoryGroupBy === 'rarity'
-      ? (item.rarity?.toLowerCase() || 'common')
-      : (item.category || item.type || 'other');
 
   const groups = {};
   resolved.forEach(item => {
@@ -757,13 +781,13 @@ function renderInventory(inventory) {
     groups[key].push(item);
   });
 
-  const sortedGroupKeys = Object.keys(groups).sort((a, b) =>
+  const sortedKeys = Object.keys(groups).sort((a, b) =>
     inventoryGroupBy === 'rarity'
       ? RARITY_ORDER.indexOf(a) - RARITY_ORDER.indexOf(b)
       : a.localeCompare(b)
   );
 
-  container.innerHTML = sortedGroupKeys.map(key => `
+  container.innerHTML = sortedKeys.map(key => `
     <p class="category-heading">${capitalise(key)}</p>
     ${sortItems(groups[key]).map(renderItemRow).join('')}
   `).join('');
@@ -781,7 +805,6 @@ function toggleQuantityEdit() {
 
 function enterEditMode() {
   editModeActive = true;
-  // Take a snapshot of the current resolved inventory — frozen for duration of edit
   editModeSnapshot = resolveInventory(state.currentMerchant.inventory);
 
   const btn = document.getElementById('modify-qty-btn');
@@ -792,7 +815,6 @@ function enterEditMode() {
 }
 
 function saveQuantityEdit() {
-  // Collect all qty inputs still in the DOM
   const inputs = document.querySelectorAll('#result-inventory .qty-input');
   const zeros = [];
 
@@ -811,7 +833,6 @@ function saveQuantityEdit() {
     if (!proceed) return;
   }
 
-  // Build new inventory from DOM state
   const newInventory = [];
   document.querySelectorAll('#result-inventory .qty-input').forEach(input => {
     const qty = parseInt(input.value);
@@ -851,7 +872,7 @@ function autoSaveMerchant() {
   }
 }
 
-// ─── Save Merchant (manual) ───────────────────────────────
+// ─── Save Merchant ────────────────────────────────────────
 
 function saveMerchant() {
   if (!state.currentMerchant) return;
@@ -889,7 +910,9 @@ function regenerateMerchant() {
     stockingStyle: s.stockingStyle,
     arcaneTilt: s.arcaneTilt,
     pricingModifier: s.pricingModifier,
-    rarity: s.rarity
+    rarity: s.rarity,
+    includeTags: s.includeTags || [],
+    excludeTags: s.excludeTags || []
   });
 
   if (!merchant) {
@@ -898,7 +921,7 @@ function regenerateMerchant() {
   }
 
   state.currentMerchant.inventory = merchant.inventory;
-  state.currentMerchant.currency = merchant.currency;
+  state.currentMerchant.currency  = merchant.currency;
 
   const existingIndex = state.merchants.findIndex(m => m.id === state.currentMerchant.id);
   if (existingIndex >= 0) {
@@ -929,7 +952,6 @@ function openAddItemModal() {
   document.getElementById('modal-selected-name').textContent = '—';
   document.getElementById('modal-confirm-btn').disabled = true;
 
-  // Reset filters
   document.querySelectorAll('#add-item-modal .filter-btn').forEach(btn => {
     btn.classList.toggle('active', btn.textContent.trim() === 'Any');
   });
@@ -945,15 +967,15 @@ function closeAddItemModal(e) {
 }
 
 function filterModalItems() {
-  const search = document.getElementById('modal-item-search').value.toLowerCase();
-  const typeBtn = document.querySelector('#add-item-modal .filter-row:nth-child(2) .filter-btn.active');
-  const rarityBtn = document.querySelector('#add-item-modal .filter-row:nth-child(3) .filter-btn.active');
-  const typeFilter = typeBtn ? typeBtn.textContent.trim() : 'Any';
+  const search     = document.getElementById('modal-item-search').value.toLowerCase();
+  const typeBtn    = document.querySelector('#add-item-modal .filter-row:nth-child(2) .filter-btn.active');
+  const rarityBtn  = document.querySelector('#add-item-modal .filter-row:nth-child(3) .filter-btn.active');
+  const typeFilter   = typeBtn   ? typeBtn.textContent.trim()   : 'Any';
   const rarityFilter = rarityBtn ? rarityBtn.textContent.trim() : 'Any';
 
   const filtered = state.items.filter(item => {
     if (search && !item.name.toLowerCase().includes(search)) return false;
-    if (typeFilter !== 'Any' && item.type?.toLowerCase() !== typeFilter.toLowerCase()) return false;
+    if (typeFilter   !== 'Any' && item.type?.toLowerCase()   !== typeFilter.toLowerCase())   return false;
     if (rarityFilter !== 'Any' && item.rarity?.toLowerCase() !== rarityFilter.toLowerCase()) return false;
     return true;
   });
@@ -985,19 +1007,15 @@ function filterModalItems() {
 }
 
 function setModalFilter(btn, group) {
-  const row = btn.parentElement;
-  row.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   filterModalItems();
 }
 
 function selectModalItem(row, itemId) {
-  document.querySelectorAll('#modal-items-list .modal-item-row').forEach(r => {
-    r.classList.remove('selected');
-  });
+  document.querySelectorAll('#modal-items-list .modal-item-row').forEach(r => r.classList.remove('selected'));
   row.classList.add('selected');
   modalSelectedItem = state.items.find(i => i.id === itemId);
-
   document.getElementById('modal-selected-name').textContent = modalSelectedItem?.name || '—';
   document.getElementById('modal-qty-controls').style.visibility = 'visible';
   document.getElementById('modal-confirm-btn').disabled = false;
@@ -1005,50 +1023,39 @@ function selectModalItem(row, itemId) {
 
 function stepModalQty(delta) {
   const input = document.getElementById('modal-qty-input');
-  const newVal = Math.max(1, parseInt(input.value || 1) + delta);
-  input.value = newVal;
+  input.value = Math.max(1, parseInt(input.value || 1) + delta);
 }
 
 function confirmAddItem() {
   if (!modalSelectedItem || !state.currentMerchant) return;
 
   const qty = Math.max(1, parseInt(document.getElementById('modal-qty-input').value) || 1);
-
-  // Check for existing entry
   const existing = state.currentMerchant.inventory.find(e => e.id === modalSelectedItem.id);
+
   if (existing) {
     if (editModeActive) {
-      // Also update the DOM input if in edit mode
       const input = document.querySelector(`#result-inventory .qty-input[data-item-id="${modalSelectedItem.id}"]`);
-      if (input) {
-        input.value = parseInt(input.value) + qty;
-      } else {
-        existing.quantity += qty;
-      }
+      if (input) input.value = parseInt(input.value) + qty;
+      else existing.quantity += qty;
     } else {
       existing.quantity += qty;
     }
   } else {
     state.currentMerchant.inventory.push({ id: modalSelectedItem.id, quantity: qty });
     if (editModeActive) {
-      // Add to snapshot and append a new edit row
       editModeSnapshot.push({ ...modalSelectedItem, quantity: qty });
       const container = document.getElementById('result-inventory');
-      const newRow = document.createElement('div');
-      newRow.innerHTML = renderEditRow({ ...modalSelectedItem, quantity: qty });
-      // Append to last group or flat list
-      container.appendChild(newRow.firstElementChild);
+      const div = document.createElement('div');
+      div.innerHTML = renderEditRow({ ...modalSelectedItem, quantity: qty });
+      container.appendChild(div.firstElementChild);
     }
   }
 
-  if (!editModeActive) {
-    renderInventory(state.currentMerchant.inventory);
-  }
+  if (!editModeActive) renderInventory(state.currentMerchant.inventory);
 
   autoSaveMerchant();
   updateMerchantStats();
 
-  // Close modal
   document.getElementById('add-item-modal').classList.remove('open');
   modalSelectedItem = null;
 }
@@ -1064,18 +1071,18 @@ function initExistingItems() {
 }
 
 function renderExistingItems() {
-  const search = document.getElementById('item-search').value.toLowerCase();
-  const typeBtn = document.querySelector('#screen-custom-existing .filter-row:nth-child(2) .filter-btn.active');
-  const rarityBtn = document.querySelector('#screen-custom-existing .filter-row:nth-child(3) .filter-btn.active');
-  const levelMin = parseInt(document.getElementById('level-min').value);
-  const levelMax = parseInt(document.getElementById('level-max').value);
+  const search     = document.getElementById('item-search').value.toLowerCase();
+  const typeBtn    = document.querySelector('#screen-custom-existing .filter-row:nth-child(2) .filter-btn.active');
+  const rarityBtn  = document.querySelector('#screen-custom-existing .filter-row:nth-child(3) .filter-btn.active');
+  const levelMin   = parseInt(document.getElementById('level-min').value);
+  const levelMax   = parseInt(document.getElementById('level-max').value);
 
-  const typeFilter = typeBtn ? typeBtn.textContent.trim() : 'Any';
+  const typeFilter   = typeBtn   ? typeBtn.textContent.trim()   : 'Any';
   const rarityFilter = rarityBtn ? rarityBtn.textContent.trim() : 'Any';
 
   const filtered = state.items.filter(item => {
     if (search && !item.name.toLowerCase().includes(search)) return false;
-    if (typeFilter !== 'Any' && item.type?.toLowerCase() !== typeFilter.toLowerCase()) return false;
+    if (typeFilter   !== 'Any' && item.type?.toLowerCase()   !== typeFilter.toLowerCase())   return false;
     if (rarityFilter !== 'Any' && item.rarity?.toLowerCase() !== rarityFilter.toLowerCase()) return false;
     if (item.level < levelMin || item.level > levelMax) return false;
     return true;
@@ -1185,7 +1192,7 @@ function openItemForm(item) {
   const bulkVal = formatBulk(item.bulk);
   document.getElementById('item-bulk-input').value = bulkVal === '—' ? '' : bulkVal;
 
-  const wrapper = document.getElementById('traits-wrapper');
+  const wrapper  = document.getElementById('traits-wrapper');
   const tagInput = wrapper.querySelector('.tag-input');
   wrapper.querySelectorAll('.tag').forEach(t => t.remove());
   (item.traits || []).forEach(trait => {
@@ -1218,7 +1225,7 @@ function sortExistingItems(column) {
 function updateSortHeaders() {
   const columns = ['name', 'type', 'level', 'bulk', 'price', 'rarity'];
   columns.forEach(col => {
-    const icon = document.getElementById(`sort-icon-${col}`);
+    const icon   = document.getElementById(`sort-icon-${col}`);
     const header = icon?.parentElement;
     if (!icon || !header) return;
     if (col === existingSortColumn) {
@@ -1270,12 +1277,12 @@ function loadSettings() {
 function saveSettings() {
   const settings = {
     settlementSize: document.getElementById('default-settlement-select').value,
-    economy: document.getElementById('default-economy-select').value,
-    ancestry: document.getElementById('default-ancestry-select').value,
-    storeType: document.getElementById('default-store-type-select').value,
-    stockingStyle: document.getElementById('default-stocking-style-select').value,
-    arcaneTilt: parseInt(document.getElementById('default-arcane-slider').value),
-    pricingModifier: parseInt(document.getElementById('default-price-slider').value),
+    economy:        document.getElementById('default-economy-select').value,
+    ancestry:       document.getElementById('default-ancestry-select').value,
+    storeType:      document.getElementById('default-store-type-select').value,
+    stockingStyle:  document.getElementById('default-stocking-style-select').value,
+    arcaneTilt:     parseInt(document.getElementById('default-arcane-slider').value),
+    pricingModifier:parseInt(document.getElementById('default-price-slider').value),
     rarity: ['common', 'uncommon', 'rare', 'unique'].filter((r, i) =>
       document.querySelectorAll('#screen-settings .checkbox-group input[type="checkbox"]')[i]?.checked
     ),
@@ -1292,78 +1299,64 @@ function saveSettings() {
 }
 
 function applySettingsToForm(settings) {
-  document.getElementById('settlement-select').value = settings.settlementSize;
-  document.getElementById('economy-select').value = settings.economy;
-  document.getElementById('store-type-select').value = settings.storeType;
-  document.getElementById('stocking-style-select').value = settings.stockingStyle;
-
+  // Selects
+  document.getElementById('settlement-select').value         = settings.settlementSize;
+  document.getElementById('economy-select').value            = settings.economy;
+  document.getElementById('store-type-select').value         = settings.storeType;
+  document.getElementById('stocking-style-select').value     = settings.stockingStyle;
   document.getElementById('default-settlement-select').value = settings.settlementSize;
-  document.getElementById('default-economy-select').value = settings.economy;
+  document.getElementById('default-economy-select').value    = settings.economy;
   document.getElementById('default-store-type-select').value = settings.storeType;
   document.getElementById('default-stocking-style-select').value = settings.stockingStyle;
 
-  const arcaneInput = document.querySelector('#screen-merchant-new input[type="range"]:nth-of-type(1)');
-  if (arcaneInput) {
-    arcaneInput.value = settings.arcaneTilt;
-    document.getElementById('arcane-display').textContent = settings.arcaneTilt + '%';
+  // New merchant gel sliders
+  const arcaneSlider = document.getElementById('arcane-slider');
+  if (arcaneSlider) {
+    arcaneSlider.value = settings.arcaneTilt;
+    syncGelSlider('arcane-slider', 'arcane-fill', 'arcane-thumb', 'arcane-display', false);
   }
 
+  const priceSlider = document.getElementById('price-slider');
+  if (priceSlider) {
+    priceSlider.value = settings.pricingModifier;
+    syncGelSlider('price-slider', 'price-fill', 'price-thumb', 'price-display', true);
+  }
+
+  // Settings gel sliders
   const defaultArcaneSlider = document.getElementById('default-arcane-slider');
   if (defaultArcaneSlider) {
     defaultArcaneSlider.value = settings.arcaneTilt;
-    document.getElementById('default-arcane-display').textContent = settings.arcaneTilt + '%';
-  }
-
-  const priceInput = document.querySelector('#screen-merchant-new input[type="range"]:nth-of-type(2)');
-  if (priceInput) {
-    priceInput.value = settings.pricingModifier;
-    const v = settings.pricingModifier;
-    document.getElementById('price-display').textContent = (v > 0 ? '+' : '') + v + '%';
+    syncGelSlider('default-arcane-slider', 'default-arcane-fill', 'default-arcane-thumb', 'default-arcane-display', false);
   }
 
   const defaultPriceSlider = document.getElementById('default-price-slider');
   if (defaultPriceSlider) {
     defaultPriceSlider.value = settings.pricingModifier;
-    document.getElementById('default-price-display').textContent =
-      (settings.pricingModifier > 0 ? '+' : '') + settings.pricingModifier + '%';
+    syncGelSlider('default-price-slider', 'default-price-fill', 'default-price-thumb', 'default-price-display', true);
   }
 
+  // Rarity checkboxes
   const rarities = ['common', 'uncommon', 'rare', 'unique'];
   document.querySelectorAll('#screen-merchant-new .checkbox-group input[type="checkbox"]')
     .forEach((cb, i) => { cb.checked = settings.rarity.includes(rarities[i]); });
   document.querySelectorAll('#screen-settings .checkbox-group input[type="checkbox"]')
     .forEach((cb, i) => { cb.checked = settings.rarity.includes(rarities[i]); });
 
+  // Tag filters
+  document.getElementById('include-tags-input').value         = settings.includeTags || '';
+  document.getElementById('exclude-tags-input').value         = settings.excludeTags || '';
+  document.getElementById('default-include-tags-input').value = settings.includeTags || '';
+  document.getElementById('default-exclude-tags-input').value = settings.excludeTags || '';
+
+  // Ancestry (may need to wait for dropdown to populate)
   const applyAncestry = () => {
     document.getElementById('ancestry-select').value = settings.ancestry || 'any';
     const defaultAncestrySelect = document.getElementById('default-ancestry-select');
     if (defaultAncestrySelect) defaultAncestrySelect.value = settings.ancestry || 'any';
   };
 
-  if (state.ancestries.length > 0) {
-    applyAncestry();
-  } else {
-    setTimeout(applyAncestry, 500);
-  }
-
-  document.getElementById('include-tags-input').value = settings.includeTags || '';
-  document.getElementById('exclude-tags-input').value = settings.excludeTags || '';
-  document.getElementById('default-include-tags-input').value = settings.includeTags || '';
-  document.getElementById('default-exclude-tags-input').value = settings.excludeTags || '';
-}
-
-function setTheme(btn, theme) {
-  applyTheme(theme);
-  saveToStorage('theme', theme);
-  updateThemeCluster(theme);
-}
-
-function toggleDefaultFilters() {
-  const body = document.getElementById('default-filters-body');
-  const icon = document.getElementById('default-filters-icon');
-  const isOpen = body.classList.contains('open');
-  body.classList.toggle('open');
-  icon.className = isOpen ? 'ti ti-chevron-right' : 'ti ti-chevron-down';
+  if (state.ancestries.length > 0) applyAncestry();
+  else setTimeout(applyAncestry, 500);
 }
 
 function formatPriceModifier(val, displayId) {
@@ -1405,7 +1398,7 @@ function saveMerchants() {
 
 function renderMerchantsList() {
   const container = document.getElementById('merchants-list');
-  const count = document.getElementById('merchants-count');
+  const count     = document.getElementById('merchants-count');
   count.textContent = `${state.merchants.length} merchant${state.merchants.length !== 1 ? 's' : ''} saved`;
 
   if (state.merchants.length === 0) {
@@ -1431,12 +1424,12 @@ function renderMerchantsList() {
     </div>
     ${state.merchants.map(merchant => {
       const s = merchant.generatorSettings;
-      const maxLevel = SETTLEMENT_LEVEL[s.settlementSize] || '—';
+      const maxLevel        = SETTLEMENT_LEVEL[s.settlementSize] || '—';
       const ancestryDisplay = s.ancestry && s.ancestry !== 'any' ? capitalise(s.ancestry) : '—';
-      const storeDisplay = capitalise(s.storeType.replace(/-/g, ' '));
+      const storeDisplay    = capitalise(s.storeType.replace(/-/g, ' '));
       const settlementDisplay = capitalise(s.settlementSize);
-      const economyDisplay = capitalise(s.economy.replace(/-/g, ' '));
-      const rarityBadges = s.rarity.length === 4
+      const economyDisplay  = capitalise(s.economy.replace(/-/g, ' '));
+      const rarityBadges    = s.rarity.length === 4
         ? '<span class="badge badge-common">All</span>'
         : s.rarity.map(r => `<span class="badge badge-${r}">${capitalise(r)}</span>`).join('');
 
@@ -1470,7 +1463,7 @@ function saveUserItems() {
 
 function renderUserItemsList() {
   const container = document.getElementById('custom-list');
-  const count = document.getElementById('custom-count');
+  const count     = document.getElementById('custom-count');
   count.textContent = `${state.userItems.length} item${state.userItems.length !== 1 ? 's' : ''}`;
 
   if (state.userItems.length === 0) {
@@ -1526,26 +1519,23 @@ function saveUserItem() {
     .map(tag => tag.textContent.trim().replace('×', '').trim());
 
   const item = {
-    id: currentEditItem?.id || generateId(),
+    id:       currentEditItem?.id || generateId(),
     sourceId: currentEditItem?.sourceId || null,
     name,
-    type: document.getElementById('item-type-select').value,
+    type:     document.getElementById('item-type-select').value,
     category: document.getElementById('item-category-select').value,
-    level: parseInt(document.getElementById('item-level-input').value) || 0,
-    rarity: document.getElementById('item-rarity-select').value.toLowerCase(),
-    price: document.getElementById('item-price-input').value.trim() || null,
-    bulk: document.getElementById('item-bulk-input').value.trim() || null,
+    level:    parseInt(document.getElementById('item-level-input').value) || 0,
+    rarity:   document.getElementById('item-rarity-select').value.toLowerCase(),
+    price:    document.getElementById('item-price-input').value.trim() || null,
+    bulk:     document.getElementById('item-bulk-input').value.trim() || null,
     traits,
-    source: document.getElementById('item-source-input').value.trim(),
+    source:   document.getElementById('item-source-input').value.trim(),
     description: document.getElementById('item-description-input').value.trim()
   };
 
   const existingIndex = state.userItems.findIndex(i => i.id === item.id);
-  if (existingIndex >= 0) {
-    state.userItems[existingIndex] = item;
-  } else {
-    state.userItems.push(item);
-  }
+  if (existingIndex >= 0) state.userItems[existingIndex] = item;
+  else state.userItems.push(item);
 
   saveUserItems();
   renderUserItemsList();
@@ -1563,8 +1553,7 @@ function clearItemForm() {
   document.getElementById('item-bulk-input').value = '';
   document.getElementById('item-source-input').value = '';
   document.getElementById('item-description-input').value = '';
-  const wrapper = document.getElementById('traits-wrapper');
-  wrapper.querySelectorAll('.tag').forEach(t => t.remove());
+  document.getElementById('traits-wrapper').querySelectorAll('.tag').forEach(t => t.remove());
   currentEditItem = null;
 }
 
@@ -1577,20 +1566,20 @@ function editUserItem(id) {
 // ─── Import / Export ──────────────────────────────────────
 
 function exportData(type) {
-  const data = type === 'merchants' ? state.merchants : state.userItems;
+  const data     = type === 'merchants' ? state.merchants : state.userItems;
   const filename = type === 'merchants' ? 'merchants.json' : 'user-items.json';
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
 }
 
 function importData(type) {
-  const input = document.createElement('input');
-  input.type = 'file';
+  const input  = document.createElement('input');
+  input.type   = 'file';
   input.accept = '.json';
   input.onchange = e => {
     const file = e.target.files[0];
@@ -1634,11 +1623,10 @@ function resetAllData() {
   alert('All data has been reset.');
 }
 
-// ─── Filter helpers ───────────────────────────────────────
+// ─── Filter Helpers ───────────────────────────────────────
 
 function setSearchFilter(btn, group) {
-  const row = btn.parentElement;
-  row.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderExistingItems();
 }
@@ -1673,42 +1661,13 @@ function deleteUserItem(e, id) {
   renderUserItemsList();
 }
 
-// ─── Theme ────────────────────────────────────────────────
-
-function initTheme() {
-  const saved = loadFromStorage('theme') || 'system';
-  applyTheme(saved);
-  updateThemeCluster(saved);
-}
-
-function applyTheme(theme) {
-  const app = document.getElementById('app');
-  const root = document.documentElement;
-  app.classList.remove('theme-light', 'theme-dark');
-  root.classList.remove('theme-light', 'theme-dark');
-  if (theme === 'light') {
-    app.classList.add('theme-light');
-    root.classList.add('theme-light');
-  }
-  if (theme === 'dark') {
-    app.classList.add('theme-dark');
-    root.classList.add('theme-dark');
-  }
-}
-
-function updateThemeCluster(theme) {
-  document.querySelectorAll('.theme-icon-btn').forEach(b => b.classList.remove('active'));
-  const map = { light: 'theme-btn-light', system: 'theme-btn-system', dark: 'theme-btn-dark' };
-  if (map[theme]) document.getElementById(map[theme])?.classList.add('active');
-}
-
 // ─── Version Check ────────────────────────────────────────
 
 async function checkForUpdates() {
   try {
     const localResponse = await fetch('data/version.json');
-    const localData = await localResponse.json();
-    const localVersion = localData.version;
+    const localData     = await localResponse.json();
+    const localVersion  = localData.version;
 
     const versionEl = document.getElementById('app-version');
     if (versionEl) versionEl.textContent = `v${localVersion}`;
@@ -1733,22 +1692,21 @@ async function checkForUpdates() {
 async function updateItemDatabase() {
   const btn = document.querySelector('.settings-row .btn-primary');
   btn.innerHTML = '<i class="ti ti-loader"></i> Updating…';
-  btn.disabled = true;
+  btn.disabled  = true;
 
   try {
-    const [itemsResponse, firearmsResponse] = await Promise.all([
-      fetch('https://raw.githubusercontent.com/codeguy1134/gomerchantgo/main/data/items.json', { cache: 'no-store' }),
+    const [itemsRes, firearmsRes] = await Promise.all([
+      fetch('https://raw.githubusercontent.com/codeguy1134/gomerchantgo/main/data/items.json',    { cache: 'no-store' }),
       fetch('https://raw.githubusercontent.com/codeguy1134/gomerchantgo/main/data/firearms.json', { cache: 'no-store' })
     ]);
 
-    if (!itemsResponse.ok) throw new Error('Failed to fetch items.json');
-    if (!firearmsResponse.ok) throw new Error('Failed to fetch firearms.json');
+    if (!itemsRes.ok)    throw new Error('Failed to fetch items.json');
+    if (!firearmsRes.ok) throw new Error('Failed to fetch firearms.json');
 
-    const items = await itemsResponse.json();
-    const firearmNames = await firearmsResponse.json();
+    const items         = await itemsRes.json();
+    const firearmNames  = await firearmsRes.json();
+    const nameSet       = new Set(firearmNames.map(n => n.toLowerCase()));
 
-    // Patch firearm traits onto fresh item data
-    const nameSet = new Set(firearmNames.map(n => n.toLowerCase()));
     items.forEach(item => {
       if (nameSet.has(item.name?.toLowerCase())) {
         if (!item.traits) item.traits = [];
@@ -1762,7 +1720,7 @@ async function updateItemDatabase() {
     btn.innerHTML = '<i class="ti ti-check"></i> Up to date';
     setTimeout(() => {
       btn.innerHTML = '<i class="ti ti-download"></i> Update';
-      btn.disabled = false;
+      btn.disabled  = false;
     }, 2000);
 
   } catch (err) {
@@ -1770,11 +1728,11 @@ async function updateItemDatabase() {
     btn.innerHTML = '<i class="ti ti-x"></i> Failed';
     setTimeout(() => {
       btn.innerHTML = '<i class="ti ti-download"></i> Update';
-      btn.disabled = false;
+      btn.disabled  = false;
     }, 2000);
   }
 }
 
-// ─── Start the app ────────────────────────────────────────
+// ─── Start ────────────────────────────────────────────────
 
 init();

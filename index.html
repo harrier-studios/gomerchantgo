@@ -9,6 +9,9 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+
+<div id="app-bg"></div>
+
 <div id="app">
 
   <!-- ─── App Chrome ──────────────────────────────────────── -->
@@ -16,19 +19,6 @@
     <div id="app-chrome-left">
       <p class="home-eyebrow">Pathfinder 2E</p>
       <h1>Go! Merchants Go! <span id="app-version" class="app-version-tag">v0.9</span></h1>
-    </div>
-    <div id="app-chrome-right">
-      <div id="theme-cluster">
-        <button class="theme-icon-btn" id="theme-btn-light" aria-label="Light theme" onclick="setTheme(this, 'light')">
-          <i class="ti ti-sun"></i>
-        </button>
-        <button class="theme-icon-btn" id="theme-btn-system" aria-label="System theme" onclick="setTheme(this, 'system')">
-          <i class="ti ti-device-desktop"></i>
-        </button>
-        <button class="theme-icon-btn" id="theme-btn-dark" aria-label="Dark theme" onclick="setTheme(this, 'dark')">
-          <i class="ti ti-moon"></i>
-        </button>
-      </div>
     </div>
   </div>
 
@@ -170,20 +160,37 @@
     <div class="form-card">
       <p class="form-section-title">Stock</p>
       <div class="form-stock">
+
         <div class="slider-group">
           <label class="field-label slider-label">
             Arcane tilt <span class="slider-value" id="arcane-display">20%</span>
           </label>
-          <input type="range" class="slider" min="0" max="100" value="20" step="1"
-            oninput="document.getElementById('arcane-display').textContent = this.value + '%'" />
+          <div class="slider-track-wrap" id="arcane-wrap">
+            <div class="slider-track-bg">
+              <div class="slider-track-fill" id="arcane-fill" style="width:20%"></div>
+            </div>
+            <div class="slider-thumb" id="arcane-thumb" style="left:20%">20%</div>
+            <input type="range" class="slider-input-hidden" id="arcane-slider"
+              min="0" max="100" value="20" step="1"
+              oninput="updateGelSlider('arcane-slider','arcane-fill','arcane-thumb','arcane-display',false)" />
+          </div>
         </div>
+
         <div class="slider-group">
           <label class="field-label slider-label">
             Pricing modifier <span class="slider-value" id="price-display">+0%</span>
           </label>
-          <input type="range" class="slider" min="-50" max="100" value="0" step="1"
-            oninput="formatPriceModifier(this.value, 'price-display')" />
+          <div class="slider-track-wrap" id="price-wrap">
+            <div class="slider-track-bg">
+              <div class="slider-track-fill" id="price-fill" style="width:33.3%"></div>
+            </div>
+            <div class="slider-thumb" id="price-thumb" style="left:33.3%">+0%</div>
+            <input type="range" class="slider-input-hidden" id="price-slider"
+              min="-50" max="100" value="0" step="1"
+              oninput="updateGelSlider('price-slider','price-fill','price-thumb','price-display',true)" />
+          </div>
         </div>
+
         <div class="field-group">
           <label class="field-label">Rarity</label>
           <div class="checkbox-group">
@@ -193,6 +200,7 @@
             <label class="checkbox-label"><input type="checkbox" /> Unique</label>
           </div>
         </div>
+
         <div class="filters-section">
           <button class="filters-toggle" onclick="toggleFilters()">
             <i class="ti ti-chevron-right" id="filters-icon"></i>
@@ -212,6 +220,7 @@
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -481,10 +490,22 @@
       </div>
       <div class="filter-row">
         <span class="filter-label">Level</span>
-        <input type="range" class="slider" min="0" max="20" value="0" step="1"
-          oninput="updateLevelRange(this, 'level-min-val')" id="level-min" style="accent-color: #5B7F95;" />
-        <input type="range" class="slider" min="0" max="20" value="20" step="1"
-          oninput="updateLevelRange(this, 'level-max-val')" id="level-max" style="accent-color: #5B7F95;" />
+        <div class="slider-track-wrap" style="flex:1; min-width:80px;">
+          <div class="slider-track-bg">
+            <div class="slider-track-fill" id="level-min-fill" style="width:0%"></div>
+          </div>
+          <div class="slider-thumb" id="level-min-thumb" style="left:0%">0</div>
+          <input type="range" class="slider-input-hidden" id="level-min" min="0" max="20" value="0" step="1"
+            oninput="updateLevelRange(this, 'level-min-val'); updateLevelSlider('level-min','level-min-fill','level-min-thumb',false)" />
+        </div>
+        <div class="slider-track-wrap" style="flex:1; min-width:80px;">
+          <div class="slider-track-bg">
+            <div class="slider-track-fill" id="level-max-fill" style="width:100%"></div>
+          </div>
+          <div class="slider-thumb" id="level-max-thumb" style="left:100%">20</div>
+          <input type="range" class="slider-input-hidden" id="level-max" min="0" max="20" value="20" step="1"
+            oninput="updateLevelRange(this, 'level-max-val'); updateLevelSlider('level-max','level-max-fill','level-max-thumb',false)" />
+        </div>
         <span class="slider-value" style="min-width: 48px; text-align: right;">
           <span id="level-min-val">0</span>–<span id="level-max-val">20</span>
         </span>
@@ -594,23 +615,38 @@
         </div>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+
         <div class="slider-group">
           <label class="field-label slider-label">
             Arcane tilt <span class="slider-value" id="default-arcane-display">20%</span>
           </label>
-          <input type="range" class="slider" min="0" max="100" value="20" step="1"
-            id="default-arcane-slider"
-            oninput="document.getElementById('default-arcane-display').textContent = this.value + '%'" />
+          <div class="slider-track-wrap">
+            <div class="slider-track-bg">
+              <div class="slider-track-fill" id="default-arcane-fill" style="width:20%"></div>
+            </div>
+            <div class="slider-thumb" id="default-arcane-thumb" style="left:20%">20%</div>
+            <input type="range" class="slider-input-hidden" id="default-arcane-slider"
+              min="0" max="100" value="20" step="1"
+              oninput="updateGelSlider('default-arcane-slider','default-arcane-fill','default-arcane-thumb','default-arcane-display',false)" />
+          </div>
         </div>
+
         <div class="slider-group">
           <label class="field-label slider-label">
             Pricing modifier <span class="slider-value" id="default-price-display">+0%</span>
           </label>
-          <input type="range" class="slider" min="-50" max="100" value="0" step="1"
-            id="default-price-slider"
-            oninput="formatPriceModifier(this.value, 'default-price-display')" />
+          <div class="slider-track-wrap">
+            <div class="slider-track-bg">
+              <div class="slider-track-fill" id="default-price-fill" style="width:33.3%"></div>
+            </div>
+            <div class="slider-thumb" id="default-price-thumb" style="left:33.3%">+0%</div>
+            <input type="range" class="slider-input-hidden" id="default-price-slider"
+              min="-50" max="100" value="0" step="1"
+              oninput="updateGelSlider('default-price-slider','default-price-fill','default-price-thumb','default-price-display',true)" />
+          </div>
         </div>
+
         <div class="field-group">
           <label class="field-label">Rarity</label>
           <div class="checkbox-group">
@@ -620,6 +656,7 @@
             <label class="checkbox-label"><input type="checkbox" /> Unique</label>
           </div>
         </div>
+
         <div class="filters-section">
           <button class="filters-toggle" onclick="toggleDefaultFilters()">
             <i class="ti ti-chevron-right" id="default-filters-icon"></i>
@@ -629,7 +666,7 @@
           <div class="filters-body" id="default-filters-body">
             <div class="field-grid" style="margin-top: 1rem;">
               <div class="field-group">
-                <label class="field-label" title="Comma-separated. Items must match at least one include tag. Spaces and hyphens are interchangeable, e.g. 'deadly d8' matches 'deadly-d8'.">Include tags ⓘ</label>
+                <label class="field-label" title="Comma-separated. Items must match at least one include tag. Spaces and hyphens are interchangeable.">Include tags ⓘ</label>
                 <input type="text" class="field-input" id="default-include-tags-input" placeholder="e.g. sword, fire…" />
               </div>
               <div class="field-group">
@@ -710,8 +747,6 @@
           <i class="ti ti-x"></i>
         </button>
       </div>
-
-      <!-- Search and filters -->
       <div class="modal-filters">
         <input type="text" class="field-input" placeholder="Search items…" id="modal-item-search" oninput="filterModalItems()" />
         <div class="filter-row" style="margin-top: 8px;">
@@ -731,8 +766,6 @@
           <button class="filter-btn" onclick="setModalFilter(this, 'rarity')">Unique</button>
         </div>
       </div>
-
-      <!-- Item list -->
       <div class="modal-list-container">
         <div class="list-header grid-existing-items">
           <span class="col-item-name">Name</span>
@@ -744,8 +777,6 @@
         </div>
         <div id="modal-items-list"></div>
       </div>
-
-      <!-- Quantity and confirm -->
       <div class="modal-footer">
         <div class="modal-qty" id="modal-qty-controls" style="visibility: hidden;">
           <span class="modal-selected-name" id="modal-selected-name">—</span>
