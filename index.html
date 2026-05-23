@@ -163,7 +163,7 @@
 
         <div class="slider-group">
           <label class="field-label slider-label">
-            Arcane tilt <span class="slider-value" id="arcane-display">20%</span>
+            Arcane tilt <span class="slider-value">100%</span>
           </label>
           <div class="slider-track-wrap" id="arcane-wrap">
             <div class="slider-track-bg">
@@ -172,13 +172,13 @@
             <div class="slider-thumb" id="arcane-thumb" style="left:20%">20%</div>
             <input type="range" class="slider-input-hidden" id="arcane-slider"
               min="0" max="100" value="20" step="1"
-              oninput="updateGelSlider('arcane-slider','arcane-fill','arcane-thumb','arcane-display',false)" />
+              oninput="updateGelSlider('arcane-slider','arcane-fill','arcane-thumb',null,false)" />
           </div>
         </div>
 
         <div class="slider-group">
           <label class="field-label slider-label">
-            Pricing modifier <span class="slider-value" id="price-display">+0%</span>
+            Pricing modifier <span class="slider-value">+100%</span>
           </label>
           <div class="slider-track-wrap" id="price-wrap">
             <div class="slider-track-bg">
@@ -187,7 +187,7 @@
             <div class="slider-thumb" id="price-thumb" style="left:33.3%">+0%</div>
             <input type="range" class="slider-input-hidden" id="price-slider"
               min="-50" max="100" value="0" step="1"
-              oninput="updateGelSlider('price-slider','price-fill','price-thumb','price-display',true)" />
+              oninput="updateGelSlider('price-slider','price-fill','price-thumb',null,true)" />
           </div>
         </div>
 
@@ -564,7 +564,7 @@
           <i class="ti ti-device-floppy"></i> Save Defaults
         </button>
       </div>
-      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 1.25rem;">These values pre-fill the generator form. You can still change them per merchant.</p>
+      <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 1.25rem;">These values pre-fill the generator form. You can still change them per merchant.</p>
       <div class="field-grid" style="margin-bottom: 16px;">
         <div class="field-group">
           <label class="field-label">Settlement size</label>
@@ -619,7 +619,7 @@
 
         <div class="slider-group">
           <label class="field-label slider-label">
-            Arcane tilt <span class="slider-value" id="default-arcane-display">20%</span>
+            Arcane tilt <span class="slider-value">100%</span>
           </label>
           <div class="slider-track-wrap">
             <div class="slider-track-bg">
@@ -628,13 +628,13 @@
             <div class="slider-thumb" id="default-arcane-thumb" style="left:20%">20%</div>
             <input type="range" class="slider-input-hidden" id="default-arcane-slider"
               min="0" max="100" value="20" step="1"
-              oninput="updateGelSlider('default-arcane-slider','default-arcane-fill','default-arcane-thumb','default-arcane-display',false)" />
+              oninput="updateGelSlider('default-arcane-slider','default-arcane-fill','default-arcane-thumb',null,false)" />
           </div>
         </div>
 
         <div class="slider-group">
           <label class="field-label slider-label">
-            Pricing modifier <span class="slider-value" id="default-price-display">+0%</span>
+            Pricing modifier <span class="slider-value">+100%</span>
           </label>
           <div class="slider-track-wrap">
             <div class="slider-track-bg">
@@ -643,7 +643,7 @@
             <div class="slider-thumb" id="default-price-thumb" style="left:33.3%">+0%</div>
             <input type="range" class="slider-input-hidden" id="default-price-slider"
               min="-50" max="100" value="0" step="1"
-              oninput="updateGelSlider('default-price-slider','default-price-fill','default-price-thumb','default-price-display',true)" />
+              oninput="updateGelSlider('default-price-slider','default-price-fill','default-price-thumb',null,true)" />
           </div>
         </div>
 

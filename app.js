@@ -1313,26 +1313,26 @@ function applySettingsToForm(settings) {
   const arcaneSlider = document.getElementById('arcane-slider');
   if (arcaneSlider) {
     arcaneSlider.value = settings.arcaneTilt;
-    syncGelSlider('arcane-slider', 'arcane-fill', 'arcane-thumb', 'arcane-display', false);
+    syncGelSlider('arcane-slider', 'arcane-fill', 'arcane-thumb', null, false);
   }
 
   const priceSlider = document.getElementById('price-slider');
   if (priceSlider) {
     priceSlider.value = settings.pricingModifier;
-    syncGelSlider('price-slider', 'price-fill', 'price-thumb', 'price-display', true);
+    syncGelSlider('price-slider', 'price-fill', 'price-thumb', null, true);
   }
 
   // Settings gel sliders
   const defaultArcaneSlider = document.getElementById('default-arcane-slider');
   if (defaultArcaneSlider) {
     defaultArcaneSlider.value = settings.arcaneTilt;
-    syncGelSlider('default-arcane-slider', 'default-arcane-fill', 'default-arcane-thumb', 'default-arcane-display', false);
+    syncGelSlider('default-arcane-slider', 'default-arcane-fill', 'default-arcane-thumb', null, false);
   }
 
   const defaultPriceSlider = document.getElementById('default-price-slider');
   if (defaultPriceSlider) {
     defaultPriceSlider.value = settings.pricingModifier;
-    syncGelSlider('default-price-slider', 'default-price-fill', 'default-price-thumb', 'default-price-display', true);
+    syncGelSlider('default-price-slider', 'default-price-fill', 'default-price-thumb', null, true);
   }
 
   // Rarity checkboxes
