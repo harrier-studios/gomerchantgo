@@ -376,6 +376,21 @@ function buildMerchant(config) {
   const count = Math.max(3, baseCount);
   const selected = weightedSample(pool, count);
 
+  // ─── Guaranteed healing potions for alchemists and divine goods shops
+  if (['alchemist', 'divine-goods'].includes(storeType)) {
+    const selectedIds = new Set(selected.map(i => i.id));
+    const healingPotions = state.items.filter(item =>
+      /potion of healing/i.test(item.name) &&
+      item.level <= maxLevel &&
+      !selectedIds.has(item.id)
+    );
+    healingPotions.sort((a, b) => (a.level ?? 0) - (b.level ?? 0));
+    const potionCount = Math.floor(Math.random() * 3) + 1;
+    const potionPool = healingPotions.map(p => ({ ...p, weight: 1 / ((p.level ?? 0) + 1) }));
+    const injected = weightedSample(potionPool, Math.min(potionCount, potionPool.length));
+    injected.forEach(p => selected.push(p));
+  }
+
   const inventory = selected.map(item => ({
     id: item.id,
     quantity: generateQuantity(item, economy, storeType)

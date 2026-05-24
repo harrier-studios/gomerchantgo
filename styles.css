@@ -2,7 +2,7 @@
 
 :root {
   --bg-primary:    #111827;
-  --bg-secondary:  rgba(255,255,255,0.04);
+  --bg-secondary:  rgba(255, 255, 255, 0.04);
   --bg-hover:      rgba(255,255,255,0.06);
   --border:        rgba(255,255,255,0.08);
   --border-top:    rgba(255,255,255,0.14);
@@ -10,8 +10,8 @@
   --text-secondary:#9CA3AF;
   --text-muted:    #929cae;
   --text-dimmed:   #4B5563;
-  --teal:          #1D9E75;
-  --teal-dim:      rgba(29,158,117,0.15);
+  --brightblue:    #3a7fcf;
+  --brightblue-dim:rgba(29,158,117,0.15);
   --blue:          #5B7F95;
   --blue-dim:      rgba(91,127,149,0.15);
   --glow-teal:     rgba(29,158,117,0.4);
@@ -97,7 +97,7 @@ body {
   font-weight: 600;
   font-size: 11px;
   letter-spacing: 0.08em;
-  color: var(--teal);
+  color: var(--brightblue);
   text-transform: uppercase;
 }
 
@@ -222,7 +222,7 @@ h1 {
   font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: 13px;
-  background: var(--teal);
+  background: var(--brightblue);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -235,14 +235,14 @@ h1 {
 }
 
 .btn-primary:hover {
-  background: rgb(23, 138, 100);
+  background: rgb(109, 124, 214);
     color: var(--text-primary);
   border-color: rgba(135, 187, 220, 0.55);
   box-shadow:
-    0 0 10px rgba(23, 138, 100),
-    0 0 24px rgb(13, 76, 55),
-    inset 0 1px 0 rgb(31, 181, 131),
-    inset 0 0 12px rgb(29, 167, 121);
+    0 0 10px rgb(70, 88, 186),
+    0 0 24px rgb(81, 83, 205),
+    inset 0 1px 0 rgb(71, 141, 212),
+    inset 0 0 12px rgb(71, 141, 212);
   text-shadow: 0 0 12px rgba(91,127,149,0.7)
   
 }
@@ -258,8 +258,8 @@ h1 {
   font-weight: 600;
   font-size: 13px;
   background: none;
-  color: var(--teal);
-  border: 1.5px solid var(--teal);
+  color: var(--brightblue);
+  border: 1.5px solid var(--brightblue);
   border-radius: 8px;
   padding: 9px 16px;
   cursor: pointer;
@@ -670,15 +670,16 @@ h1 {
 }
 
 .slider-track-fill {
+  --gleam-opacity: 0;
   position: absolute;
-  top: -3px;
+  top: -2px;
   left: 0;
   height: 12px;
   border-radius: 99px;
   background: linear-gradient(90deg,
-    oklch(71.39% 0.13396 283.937) 0%,
-    oklch(55.899% 0.0976 155.483) 55%,
-    oklch(75.069% 0.07538 228.235) 100%
+    oklch(71.39% 0.13396 283.937) 20%,
+    oklch(55.899% 0.0976 155.483) 40%,
+    oklch(75.069% 0.07538 228.235) 80%
   );
   box-shadow:
     0 0 8px oklch(0.89 0.19 154 / 0.5),
@@ -694,7 +695,7 @@ h1 {
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  min-width: 44px;
+  min-width: 32px;
   height: 24px;
   padding: 0 8px;
   border-radius: 99px;
@@ -755,7 +756,7 @@ h1 {
 }
 
 .checkbox-label input {
-  accent-color: var(--teal);
+  accent-color: var(--brightblue);
   width: 15px;
   height: 15px;
   cursor: pointer;
@@ -1090,7 +1091,7 @@ h1 {
   font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: 13px;
-  background: var(--teal);
+  background: var(--brightblue);
   color: #fff;
   border: none;
   border-radius: 8px;
