@@ -4,7 +4,6 @@ Go! Merchants Go! (GMG) is a lightning-fast, offline merchant generator for Paiz
 
 Use it during pre-session planning or on the fly at the table. It's dead simple, crazy fast, and requires nothing but the browser you're already using.
 
-> **Go! Merchants Go! is not published, endorsed, or specifically approved by Paizo Inc.**
 
 ---
 
@@ -88,7 +87,7 @@ The **Data** section lets you:
 
 > ⚠️ **Go! Merchants Go! stores all merchant and custom item data in your browser's localStorage.** Clearing your browser cache, cookies, or site data — or using the Reset button — will permanently delete everything. **Export your data regularly.**
 
-Item data lives in `data/items.json`, `data/firearms.json`, and `data/ancestries.json`. These are read-only at runtime. The only file that updates over the network is `items.json`, and only when you explicitly click **Update** in Settings.
+Item data lives in `data/items.json`, `data/firearms.json`, and `data/ancestries.json`. These are read-only at runtime. The only files that updates over the network are `items.json`, `firearms.json` and only when you explicitly click **Update** in Settings.
 
 ---
 
@@ -96,7 +95,7 @@ Item data lives in `data/items.json`, `data/firearms.json`, and `data/ancestries
 
 All data files are plain JSON. If you're comfortable in a text editor, you can inspect or edit them directly. A few things to keep in mind:
 
-- `items.json` is large and dense. Any manual edits **will be overwritten** the next time you update from GitHub.
+- `items.json` is large and dense. Most importantly, any manual edits **will be overwritten** the next time you update from GitHub.
 - `firearms.json` is the safe place to add new firearms — it's a simple list of item names that get patched onto the main item pool at load time, and it survives updates.
 - Custom items created in the app are assigned UUIDs automatically. If you create items directly in JSON, use an online UUID generator to avoid conflicts.
 
