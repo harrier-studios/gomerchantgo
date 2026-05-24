@@ -74,14 +74,15 @@ The **Data** section lets you:
 
 ## Screenshots
 
-[Merchant generation screen.](images/merchant-creation.png)
+<img src="images/merchant-creation.png" width="500" alt="Generate a new merchant screen" />
 
-[Generated Merchant screen.](images/random-merchant.png)
+<img src="images/random-merchant.png" width="500" alt="Merchant result screen" />
 
-[New Item screen.](images/new-item.png)
+<img src="images/new-item.png" width="500" alt="Create New Items screen" />
+
+<img src="images/custom-items.png" width="500" alt="Modify Existing items" />
 
 [Custom Item screen](images/custom-items.png)
----
 
 ## Data & Storage
 
