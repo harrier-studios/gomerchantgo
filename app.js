@@ -557,9 +557,6 @@ function displayMerchantResult(merchant) {
   });
 
   const s = merchant.generatorSettings;
-  const nameEl = document.getElementById('result-name');
-  nameEl.textContent = merchant.name || '';
-  nameEl.style.display = merchant.name ? '' : 'none';
   document.getElementById('result-subtitle').textContent = [
     s.ancestry !== 'any' ? capitalise(s.ancestry) : null,
     capitalise(s.storeType.replace(/-/g, ' ')),
@@ -610,13 +607,12 @@ function sortItems(items) {
 }
 
 function renderDescriptionPanel(item) {
-  const mod = state.currentMerchant?.generatorSettings?.pricingModifier ?? 0;
   const meta = [
     item.type     ? { label: 'Type',     value: capitalise(item.type) }     : null,
     item.category ? { label: 'Category', value: capitalise(item.category) } : null,
     item.level != null ? { label: 'Level', value: item.level }              : null,
     item.bulk != null  ? { label: 'Bulk',  value: formatBulk(item.bulk) }   : null,
-    item.price    ? { label: 'Price',    value: formatPriceWithModifier(item.price, mod) } : null,
+    item.price    ? { label: 'Price',    value: formatPrice(item.price) }   : null,
     item.source   ? { label: 'Source',   value: item.source }               : null,
   ].filter(Boolean);
 
@@ -656,7 +652,6 @@ function toggleDescription(row) {
 }
 
 function renderItemRow(item) {
-  const mod = state.currentMerchant?.generatorSettings?.pricingModifier ?? 0;
   return `
     <div class="item-wrapper">
       <div class="list-row grid-inventory" onclick="toggleDescription(this)">
@@ -664,7 +659,7 @@ function renderItemRow(item) {
         <span class="col-qty row-meta">${item.quantity}</span>
         <span class="col-level row-meta">${item.level ?? '—'}</span>
         <span class="col-bulk row-meta">${formatBulk(item.bulk)}</span>
-        <span class="col-price row-meta">${formatPriceWithModifier(item.price, mod)}</span>
+        <span class="col-price row-meta">${formatPrice(item.price)}</span>
         <span class="col-rarity"><span class="badge ${badgeClass(item.rarity)}">${capitalise(item.rarity) || '—'}</span></span>
       </div>
       ${renderDescriptionPanel(item)}
@@ -672,7 +667,6 @@ function renderItemRow(item) {
 }
 
 function renderEditRow(item) {
-  const mod = state.currentMerchant?.generatorSettings?.pricingModifier ?? 0;
   return `
     <div class="item-wrapper">
       <div class="list-row grid-inventory-edit">
@@ -687,7 +681,7 @@ function renderEditRow(item) {
         </span>
         <span class="col-level row-meta">${item.level ?? '—'}</span>
         <span class="col-bulk row-meta">${formatBulk(item.bulk)}</span>
-        <span class="col-price row-meta">${formatPriceWithModifier(item.price, mod)}</span>
+        <span class="col-price row-meta">${formatPrice(item.price)}</span>
         <span class="col-rarity"><span class="badge ${badgeClass(item.rarity)}">${capitalise(item.rarity) || '—'}</span></span>
         <span class="col-action">
           <button class="btn-delete" onclick="removeEditRow(this, '${item.id}')">
@@ -1002,8 +996,10 @@ function filterModalItems() {
   });
 
   const container = document.getElementById('modal-items-list');
+  const notice = document.getElementById('modal-items-notice');
 
   if (filtered.length === 0) {
+    notice.style.display = 'none';
     container.innerHTML = `
       <div class="empty-state">
         <i class="ti ti-search"></i>
@@ -1011,6 +1007,13 @@ function filterModalItems() {
         <span>Try adjusting your search or filters</span>
       </div>`;
     return;
+  }
+
+  if (filtered.length > 200) {
+    notice.innerHTML = `<i class="ti ti-info-circle"></i> Showing 200 of ${filtered.length} results — refine your search to see more`;
+    notice.style.display = '';
+  } else {
+    notice.style.display = 'none';
   }
 
   container.innerHTML = filtered.slice(0, 200).map(item => `
@@ -1132,6 +1135,7 @@ function renderExistingItems() {
   const container = document.getElementById('existing-items-list');
 
   if (filtered.length === 0) {
+    document.getElementById('existing-items-notice').style.display = 'none';
     container.innerHTML = `
       <div class="empty-state">
         <i class="ti ti-search"></i>
@@ -1139,6 +1143,14 @@ function renderExistingItems() {
         <span>Try adjusting your search or filters</span>
       </div>`;
     return;
+  }
+
+  const notice = document.getElementById('existing-items-notice');
+  if (sorted.length > 200) {
+    notice.innerHTML = `<i class="ti ti-info-circle"></i> Showing 200 of ${sorted.length} results — refine your search to see more`;
+    notice.style.display = '';
+  } else {
+    notice.style.display = 'none';
   }
 
   container.innerHTML = sorted.slice(0, 200).map(item => `
@@ -1173,23 +1185,9 @@ function formatPrice(price) {
   if (!price) return '—';
   if (typeof price === 'string') return price;
   const parts = [];
-  if (price.pp) parts.push(`${price.pp} pp`);
   if (price.gp) parts.push(`${price.gp} gp`);
   if (price.sp) parts.push(`${price.sp} sp`);
   if (price.cp) parts.push(`${price.cp} cp`);
-  return parts.join(' · ') || '—';
-}
-
-// Applies the pricing modifier to each denomination independently.
-function formatPriceWithModifier(price, modifier) {
-  if (!price || typeof price === 'string') return formatPrice(price);
-  if (!modifier || modifier === 0) return formatPrice(price);
-  const apply = val => val ? Math.max(1, Math.round(val * (1 + modifier))) : 0;
-  const parts = [];
-  if (price.pp) parts.push(`${apply(price.pp)} pp`);
-  if (price.gp) parts.push(`${apply(price.gp)} gp`);
-  if (price.sp) parts.push(`${apply(price.sp)} sp`);
-  if (price.cp) parts.push(`${apply(price.cp)} cp`);
   return parts.join(' · ') || '—';
 }
 

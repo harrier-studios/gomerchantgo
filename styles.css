@@ -210,19 +210,7 @@ h1 {
   color: var(--text-muted);
 }
 
-.screen-title {
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 16px;
-  color: var(--text-primary);
-}
-
-/* Dot only appears when name is visible */
 .screen-header-title .screen-subtitle::before {
-  content: '';
-}
-
-.screen-header-title:has(.screen-title:not([style*="display: none"])) .screen-subtitle::before {
   content: '·';
   margin-right: 8px;
   color: var(--border);
@@ -1407,5 +1395,24 @@ h1 {
 .update-notice-text i {
   color: var(--blue);
   font-size: 15px;
+  flex-shrink: 0;
+}
+
+/* ─── Truncation Notice ───────────────────────────────────── */
+
+.truncation-notice {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 10px 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.truncation-notice i {
+  color: var(--blue);
+  font-size: 14px;
   flex-shrink: 0;
 }
