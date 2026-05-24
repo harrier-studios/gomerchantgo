@@ -217,6 +217,7 @@ h1 {
   color: var(--text-primary);
 }
 
+/* Dot only appears when name is visible */
 .screen-header-title .screen-subtitle::before {
   content: '';
 }
